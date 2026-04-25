@@ -1,0 +1,130 @@
+const APP_START = Date.now();
+
+export const AUCTIONS = [
+  {
+    id: 1,
+    name: 'Vintage Patek Philippe Ref. 1518',
+    category: 'Horology',
+    description: 'One of only 281 examples produced in original rose gold with a salmon dial. Comes with original box and papers. Arguably the most historically important repeating chronograph.',
+    duration: (2 * 60 + 45) * 60 * 1000,
+    bidCount: 7,
+    estimate: '$380,000 – $420,000',
+    icon: '⌚',
+    fakeBids: [
+      { address: '0x3f8a...d4c1', time: '2h 14m' },
+      { address: '0x7b2e...a9f3', time: '1h 47m' },
+      { address: '0x2c4d...f812', time: '1h 12m' },
+      { address: '0x9a1b...3e7c', time: '58m' },
+      { address: '0x5f7d...2b4a', time: '34m' },
+      { address: '0x8c3e...7f91', time: '12m' },
+      { address: '0x1a9f...5c82', time: '3m' },
+    ],
+  },
+  {
+    id: 2,
+    name: "Banksy — 'Rage, The Flower Thrower'",
+    category: 'Fine Art',
+    description: 'Signed silkscreen print on 350gsm paper, 2003. Edition of 500. Hand-signed in pencil. Certificate of authenticity from Pest Control.',
+    duration: 45 * 60 * 1000,
+    bidCount: 12,
+    estimate: '$85,000 – $110,000',
+    icon: '🎨',
+    fakeBids: [
+      { address: '0x4d2b...c891', time: '38m' },
+      { address: '0xa9f1...7e3d', time: '35m' },
+      { address: '0x6c5e...1b4f', time: '31m' },
+      { address: '0x2f8d...9a7c', time: '27m' },
+      { address: '0x7e4a...3c9b', time: '21m' },
+      { address: '0x1b9d...5f2e', time: '14m' },
+      { address: '0x8c3f...7a91', time: '9m' },
+      { address: '0x5d6e...4b2c', time: '6m' },
+      { address: '0x3a7f...9d1e', time: '4m' },
+      { address: '0xf2c8...6b4a', time: '2m' },
+      { address: '0x9e1b...3c7d', time: '1m' },
+      { address: '0x4f5a...8d2b', time: '30s' },
+    ],
+  },
+  {
+    id: 3,
+    name: '1952 Mickey Mantle Topps #311',
+    category: 'Memorabilia',
+    description: 'PSA NM-MT 8. The highest graded example available at auction this year. Considered the most iconic post-war baseball card in existence.',
+    duration: (5 * 60 + 20) * 60 * 1000,
+    bidCount: 23,
+    estimate: '$2.1M – $2.8M',
+    icon: '⚾',
+    fakeBids: [
+      { address: '0x8b4d...2f7a', time: '4h 58m' },
+      { address: '0x3c9e...5b1d', time: '4h 32m' },
+      { address: '0x6f2a...8c4e', time: '4h 11m' },
+      { address: '0x1d7b...3e9f', time: '3h 45m' },
+      { address: '0x9a4c...7f2b', time: '3h 22m' },
+      { address: '0x5e8d...1c6a', time: '2h 54m' },
+      { address: '0x2b6f...9d4c', time: '2h 31m' },
+    ],
+  },
+  {
+    id: 4,
+    name: '18th Century Isfahan Medallion Rug',
+    category: 'Textiles',
+    description: 'Central Persia, circa 1750. Wool and silk pile on cotton foundation, approximately 14′ × 22′. Museum deaccession with full provenance documentation.',
+    duration: (27 * 60 + 10) * 60 * 1000,
+    bidCount: 4,
+    estimate: '$45,000 – $65,000',
+    icon: '🏺',
+    fakeBids: [
+      { address: '0x7c3a...f9d2', time: '1d 1h' },
+      { address: '0x4e8b...2c6f', time: '22h' },
+      { address: '0x1f5d...8a4b', time: '14h' },
+      { address: '0x9b2e...6c1d', time: '6h' },
+    ],
+  },
+  {
+    id: 5,
+    name: 'Macallan 1926 Fine & Rare 60YO',
+    category: 'Spirits',
+    description: 'One of only 40 bottles ever released. Awarded 100 points by every major whisky publication. Single malt Scotch whisky distilled in 1926, bottled in 1986.',
+    duration: (3 * 60 + 15) * 60 * 1000,
+    bidCount: 9,
+    estimate: '$1.5M – $1.8M',
+    icon: '🥃',
+    fakeBids: [
+      { address: '0x6a9d...3f4c', time: '2h 58m' },
+      { address: '0x2c5f...7b8e', time: '2h 34m' },
+      { address: '0x8d4a...1e9f', time: '2h 11m' },
+      { address: '0x5b7c...6d2a', time: '1h 47m' },
+      { address: '0x3e1b...9f4d', time: '1h 23m' },
+      { address: '0xa4f8...2c7e', time: '58m' },
+      { address: '0x7d6e...5b1c', time: '34m' },
+      { address: '0x1f9a...8d4b', time: '12m' },
+      { address: '0x4c3e...7a9f', time: '2m' },
+    ],
+  },
+  {
+    id: 6,
+    name: 'De Beers 5.2ct Internally Flawless',
+    category: 'Gemstones',
+    description: 'D colour, Internally Flawless, Type IIa. Exceptional cut proportions in the 99th percentile for brilliance. GIA certified. Presented in a custom platinum setting.',
+    duration: 8 * 60 * 60 * 1000,
+    bidCount: 6,
+    estimate: '$180,000 – $240,000',
+    icon: '💎',
+    fakeBids: [
+      { address: '0x9f2b...4d7a', time: '7h 12m' },
+      { address: '0x5a8c...1e3f', time: '6h 44m' },
+      { address: '0x3d6e...9b2c', time: '5h 58m' },
+      { address: '0x7b4f...8a1d', time: '4h 22m' },
+      { address: '0x1c9e...5f3b', time: '2h 47m' },
+      { address: '0x6d2a...7c8e', time: '1h 09m' },
+    ],
+  },
+];
+
+export function getAuction(id) {
+  return AUCTIONS.find((a) => a.id === Number(id));
+}
+
+export function getTimeLeft(auction) {
+  const elapsed = Date.now() - APP_START;
+  return Math.max(0, auction.duration - elapsed);
+}
