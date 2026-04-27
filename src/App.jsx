@@ -14,6 +14,7 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import FAQPage from './pages/FAQPage';
 import VerifyPage from './pages/VerifyPage';
+import AboutPage from './pages/AboutPage';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/privacy"             element={<PrivacyPage />} />
             <Route path="/faq"                 element={<FAQPage />} />
             <Route path="/verify"              element={<VerifyPage />} />
+            <Route path="/about"               element={<AboutPage />} />
             <Route path="/auction/:id"         element={<BiddingPage />} />
             <Route path="/auction/:id/reveal"  element={<RevealPage />} />
             <Route path="*"                    element={<NotFoundPage />} />

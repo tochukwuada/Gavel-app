@@ -70,6 +70,29 @@ const SECTIONS = [
   },
   {
     n: '08',
+    title: 'Auction Rules',
+    body: 'All auctions on Gavel are governed by the following binding rules:',
+    items: [
+      {
+        label: 'Minimum bid increment',
+        body: 'Each bid must be at least 1 SOL above the auction\'s configured minimum bid to ensure meaningful competition. Bids below this threshold are rejected at submission.',
+      },
+      {
+        label: 'Reserve price',
+        body: 'Sellers may set a confidential reserve price. If the highest bid at close does not meet the reserve, the auction is declared unresolved and no settlement occurs. Whether the reserve has been met is displayed in real time on the auction listing.',
+      },
+      {
+        label: 'Anti-sniping policy',
+        body: 'To prevent last-second bid sniping, any bid placed within the final 5 minutes of an auction automatically extends the auction closing time by 5 minutes. This extension may occur multiple times with no upper limit, ensuring all participants have a fair window to respond.',
+      },
+      {
+        label: 'Bid irrevocability',
+        body: 'All bids are final and irrevocable once submitted. The cryptographic commitment is sealed to the Arcium MPC network immediately on submission. No cancellations, modifications, or withdrawals are permitted under any circumstances.',
+      },
+    ],
+  },
+  {
+    n: '09',
     title: 'Changes to These Terms',
     body: 'Gavel may revise these Terms at any time by posting an updated version on this page. The revision date will be updated accordingly. Continued use of the platform after any changes constitutes acceptance of the revised Terms. We encourage you to review this page periodically.',
     items: null,

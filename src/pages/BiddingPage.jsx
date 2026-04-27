@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
-import { Connection } from '@solana/web3.js';
+import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { createPortal } from 'react-dom';
 import { getAuction, getTimeLeft } from '../data/auctions';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useWatchlist } from '../hooks/useWatchlist';
 import { showToast } from '../components/Toast';
 import NotifPrefsModal from '../components/NotifPrefsModal';
 import { useArciumBid } from '../hooks/useArciumBid';
+import { useAuctionState } from '../hooks/useAuctionState';
 
 const DEVNET = new Connection('https://api.devnet.solana.com', 'confirmed');
 
@@ -37,15 +39,15 @@ function truncate(hex, head = 16, tail = 8) {
   return hex.slice(0, head) + '…' + hex.slice(-tail);
 }
 
-function CountdownTimer({ auction }) {
-  const [tl, setTl] = useState(() => getTimeLeft(auction));
+function CountdownTimer({ auction, extensionMs = 0 }) {
+  const [tl, setTl] = useState(() => getTimeLeft(auction) + extensionMs);
 
   useEffect(() => {
     const iv = setInterval(() => {
-      setTl(getTimeLeft(auction));
+      setTl(getTimeLeft(auction) + extensionMs);
     }, 1000);
     return () => clearInterval(iv);
-  }, [auction]);
+  }, [auction, extensionMs]);
 
   const totalS = Math.floor(tl / 1000);
   const h = Math.floor(totalS / 3600);
@@ -210,6 +212,7 @@ export default function BiddingPage() {
   const { connected, publicKey } = useWallet();
   const { setVisible } = useWalletModal();
   const { submitBid } = useArciumBid();
+  const { recordBid, extendAuction, getExtra } = useAuctionState(Number(id));
   const isMobile = useIsMobile();
   const auction = getAuction(id);
 
@@ -231,6 +234,9 @@ export default function BiddingPage() {
   const [balanceLoading, setBalanceLoading] = useState(false);
   const pendingBid = useRef(null);
   const hasBidRef = useRef(false);
+  const prevConnectedRef = useRef(connected);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(() => auction ? getTimeLeft(auction) : 0);
 
   // Fetch devnet wallet balance whenever the connected wallet changes
   useEffect(() => {
@@ -246,6 +252,25 @@ export default function BiddingPage() {
       .finally(() => { if (!cancelled) setBalanceLoading(false); });
     return () => { cancelled = true; };
   }, [connected, publicKey]);
+
+  // Wallet disconnect detection
+  useEffect(() => {
+    if (prevConnectedRef.current && !connected) {
+      setShowDisconnectModal(true);
+    }
+    prevConnectedRef.current = connected;
+  }, [connected]);
+
+  // Sync timeLeft including any auction extensions
+  useEffect(() => {
+    if (!auction) return;
+    const iv = setInterval(() => {
+      const { extensionMs } = getExtra();
+      setTimeLeft(getTimeLeft(auction) + extensionMs);
+    }, 1000);
+    return () => clearInterval(iv);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auction?.id]);
 
   // Toast: auction ending soon (once per session per auction)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,6 +305,29 @@ export default function BiddingPage() {
     return () => clearTimeout(t);
   }, []);
 
+  // Competing bids simulation — every 45–90 s
+  useEffect(() => {
+    if (!auction) return;
+    let timeout;
+    const schedule = () => {
+      const delay = 45000 + Math.random() * 45000;
+      timeout = setTimeout(() => {
+        if (getTimeLeft(auction) > 0) {
+          recordBid();
+          if (hasBidRef.current) {
+            showToast('Outbid', 'outbid', `You've been outbid on "${auction.name}". Place a higher bid.`, 6000);
+          } else {
+            showToast('New Bid', 'info', `A new sealed bid was placed on "${auction.name}".`, 4000);
+          }
+          schedule();
+        }
+      }, delay);
+    };
+    schedule();
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auction?.id]);
+
   if (!auction) {
     return (
       <div style={{ paddingTop: '120px', textAlign: 'center', color: C.textMuted, fontFamily: 'DM Mono, monospace' }}>
@@ -294,12 +342,13 @@ export default function BiddingPage() {
 
   const bidAmount = parseFloat(bidValue) || 0;
   const minBid = auction?.minBid ?? 0;
+  const minRequired = minBid + 1;
   const overBalance = walletBalance !== null && bidAmount > 0 && bidAmount > walletBalance;
-  const underMinBid = bidAmount > 0 && minBid > 0 && bidAmount < minBid;
+  const underMinBid = bidAmount > 0 && bidAmount < minRequired;
   const bidError = overBalance
     ? `Insufficient balance. Your wallet holds ◎${walletBalance.toFixed(3)}. Please enter a lower bid.`
     : underMinBid
-    ? `Bid must be at least ◎${minBid}`
+    ? `Bid must be at least ◎${minRequired} to outbid current leader`
     : null;
   const bidValid = bidAmount > 0 && !overBalance && !underMinBid;
 
@@ -338,6 +387,12 @@ export default function BiddingPage() {
         setSubmitIdx(4);
         setShowConfirm(true);
         showToast('Bid Sealed & Submitted', 'success', 'Your encrypted bid has been committed to Arcium MPC.', 5000);
+        recordBid();
+        const { extensionMs: curExt } = getExtra();
+        if (getTimeLeft(auction) + curExt < 5 * 60 * 1000) {
+          extendAuction(auction.id, 5 * 60 * 1000);
+          showToast('Auction Extended', 'info', '⏱ A bid placed in the final minutes — auction extended by 5 minutes.', 6000);
+        }
       } catch (err) {
         setSubmitIdx(0);
         const msg = err?.message ?? String(err);
@@ -346,22 +401,33 @@ export default function BiddingPage() {
       }
     } else {
       // Demo path: real encryption, simulated on-chain submission
-      onStatus('encrypting');
-      await new Promise(r => setTimeout(r, 1800));
+      try {
+        onStatus('encrypting');
+        await new Promise(r => setTimeout(r, 1800));
 
-      onStatus('submitting');
-      await new Promise(r => setTimeout(r, 1200));
+        onStatus('submitting');
+        await new Promise(r => setTimeout(r, 1200));
 
-      onStatus('finalizing');
-      await new Promise(r => setTimeout(r, 1400));
+        onStatus('finalizing');
+        await new Promise(r => setTimeout(r, 1400));
 
-      const msgStr = `demo:${id}:${lamports}:${Date.now()}`;
-      const hash = await computeBidHash(msgStr);
-      setBidHash(hash);
-      setBidSignature(truncate(hash, 16, 8));
-      setSubmitIdx(4);
-      setShowConfirm(true);
-      showToast('Bid Sealed & Submitted', 'success', 'Your encrypted bid has been committed to Arcium MPC.', 5000);
+        const msgStr = `demo:${id}:${lamports}:${Date.now()}`;
+        const hash = await computeBidHash(msgStr);
+        setBidHash(hash);
+        setBidSignature(truncate(hash, 16, 8));
+        setSubmitIdx(4);
+        setShowConfirm(true);
+        showToast('Bid Sealed & Submitted', 'success', 'Your encrypted bid has been committed to Arcium MPC.', 5000);
+        recordBid();
+        const { extensionMs: curExt } = getExtra();
+        if (getTimeLeft(auction) + curExt < 5 * 60 * 1000) {
+          extendAuction(auction.id, 5 * 60 * 1000);
+          showToast('Auction Extended', 'info', '⏱ A bid placed in the final minutes — auction extended by 5 minutes.', 6000);
+        }
+      } catch (err) {
+        setSubmitIdx(0);
+        showToast('Network Error', 'error', 'Failed to submit bid. Please check your connection and try again.', 5000);
+      }
     }
   };
 
@@ -540,7 +606,34 @@ export default function BiddingPage() {
       }}>
         {/* ── LEFT: Timer + authenticity + bid history ─────── */}
         <div>
-          <CountdownTimer auction={auction} />
+          {timeLeft > 0 && timeLeft < 10 * 60 * 1000 && (
+            <div style={{
+              padding: '12px 18px',
+              background: 'rgba(224, 124, 124, 0.08)',
+              border: '1px solid rgba(224, 124, 124, 0.35)',
+              borderRadius: '10px',
+              marginBottom: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+            }}>
+              <span style={{
+                width: '8px', height: '8px', borderRadius: '50%',
+                background: '#e07c7c', flexShrink: 0,
+                animation: 'pulse 1s infinite',
+              }} />
+              <span style={{
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.62rem',
+                color: '#e07c7c',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+              }}>
+                Auction ends in under 10 minutes
+              </span>
+            </div>
+          )}
+          <CountdownTimer auction={auction} extensionMs={getExtra().extensionMs} />
 
           {/* ── Authenticity panel ───────────────────────── */}
           {auction.authenticity?.verified ? (
@@ -673,7 +766,7 @@ export default function BiddingPage() {
                   width: '5px', height: '5px', borderRadius: '50%',
                   background: C.purpleLight, animation: 'pulse 2s infinite',
                 }} />
-                {auction.bidCount} encrypted
+                {auction.bidCount + getExtra().extraBids} encrypted
               </span>
             </div>
 
@@ -1028,7 +1121,7 @@ export default function BiddingPage() {
                 )}
 
                 {/* Min bid hint when no value entered */}
-                {!bidValue && minBid > 0 && (
+                {!bidValue && (
                   <div style={{
                     marginTop: '6px',
                     fontFamily: 'DM Mono, monospace',
@@ -1036,7 +1129,22 @@ export default function BiddingPage() {
                     color: C.textDark,
                     letterSpacing: '0.06em',
                   }}>
-                    Minimum bid: ◎{minBid}
+                    Minimum bid: ◎{minRequired} (◎{minBid} + 1 SOL increment)
+                  </div>
+                )}
+                {/* Reserve price status */}
+                {auction.reservePrice && (
+                  <div style={{
+                    marginTop: '8px',
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.55rem',
+                    color: auction.reserveMet ? '#7ec89c' : '#d4a844',
+                    letterSpacing: '0.06em',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}>
+                    {auction.reserveMet ? '✓ Reserve price met' : '⚠ Reserve price not yet met'}
                   </div>
                 )}
               </div>
@@ -1272,6 +1380,87 @@ export default function BiddingPage() {
 
     {showNotifModal && auction && (
       <NotifPrefsModal auction={auction} onClose={() => setShowNotifModal(false)} />
+    )}
+
+    {showDisconnectModal && createPortal(
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(5, 5, 7, 0.85)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backdropFilter: 'blur(6px)',
+      }}>
+        <div style={{
+          background: '#0c0a14',
+          border: '1px solid rgba(123, 94, 167, 0.25)',
+          borderRadius: '16px',
+          padding: '36px 32px',
+          maxWidth: '380px', width: '90%',
+          textAlign: 'center',
+        }}>
+          <div style={{
+            width: '52px', height: '52px',
+            background: 'rgba(224, 124, 124, 0.1)',
+            border: '1px solid rgba(224, 124, 124, 0.25)',
+            borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            margin: '0 auto 20px',
+          }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                stroke="#e07c7c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              <line x1="12" y1="9" x2="12" y2="13" stroke="#e07c7c" strokeWidth="1.8" strokeLinecap="round"/>
+              <line x1="12" y1="17" x2="12.01" y2="17" stroke="#e07c7c" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <h3 style={{
+            fontFamily: 'Cormorant Garamond, serif',
+            fontSize: '1.4rem', fontWeight: 600,
+            color: '#e8e4f0', letterSpacing: '0.03em',
+            marginBottom: '12px',
+          }}>
+            Wallet Disconnected
+          </h3>
+          <p style={{
+            fontFamily: 'DM Mono, monospace',
+            fontSize: '0.6rem', color: '#9589aa',
+            lineHeight: 1.7, letterSpacing: '0.04em',
+            marginBottom: '24px',
+          }}>
+            Your wallet was disconnected. Reconnect to continue bidding. Your current session data is preserved.
+          </p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => { setShowDisconnectModal(false); setVisible(true); }}
+              style={{
+                flex: 1, padding: '12px',
+                background: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',
+                color: '#fff', border: 'none', borderRadius: '8px',
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.62rem', letterSpacing: '0.12em',
+                textTransform: 'uppercase', cursor: 'pointer',
+              }}
+            >
+              Reconnect
+            </button>
+            <button
+              onClick={() => setShowDisconnectModal(false)}
+              style={{
+                flex: 1, padding: '12px',
+                background: 'transparent',
+                color: '#9589aa',
+                border: '1px solid rgba(123, 94, 167, 0.2)',
+                borderRadius: '8px',
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.62rem', letterSpacing: '0.12em',
+                textTransform: 'uppercase', cursor: 'pointer',
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
     )}
     </>
   );

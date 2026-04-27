@@ -58,6 +58,46 @@ function BookmarkIcon({ filled }) {
   );
 }
 
+const VISUALS = {
+  gold:    { a: '#3d2a00', b: '#7a5500', c: '#c4830a', accent: 'rgba(196,131,10,0.3)' },
+  crimson: { a: '#2a0010', b: '#6b0020', c: '#c02040', accent: 'rgba(192,32,64,0.3)' },
+  cobalt:  { a: '#00103d', b: '#00318c', c: '#1a60d4', accent: 'rgba(26,96,212,0.3)' },
+  burgundy:{ a: '#1f0015', b: '#4a0030', c: '#8c1060', accent: 'rgba(140,16,96,0.3)' },
+  amber:   { a: '#2a1200', b: '#7a3800', c: '#d46b00', accent: 'rgba(212,107,0,0.3)' },
+  ice:     { a: '#001a2a', b: '#004466', c: '#00aadd', accent: 'rgba(0,170,221,0.3)' },
+  purple:  { a: '#0c0a14', b: '#2a1f40', c: '#7B5EA7', accent: 'rgba(123,94,167,0.3)' },
+};
+
+function AuctionVisual({ visual = 'purple', icon }) {
+  const v = VISUALS[visual] || VISUALS.purple;
+  return (
+    <div style={{
+      width: '100%', height: '120px', borderRadius: '9px', marginBottom: '18px',
+      background: `linear-gradient(135deg, ${v.a} 0%, ${v.b} 50%, ${v.c} 100%)`,
+      position: 'relative', overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      {/* abstract pattern */}
+      <svg width="100%" height="100%" viewBox="0 0 240 120" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0 }}>
+        <defs>
+          <radialGradient id={`rg-${visual}`} cx="70%" cy="30%" r="60%">
+            <stop offset="0%" stopColor={v.c} stopOpacity="0.35"/>
+            <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="240" height="120" fill={`url(#rg-${visual})`}/>
+        <circle cx="180" cy="20" r="50" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+        <circle cx="20" cy="100" r="40" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+        <line x1="0" y1="60" x2="240" y2="60" stroke={v.c} strokeWidth="0.4" strokeOpacity="0.18"/>
+        <line x1="120" y1="0" x2="120" y2="120" stroke={v.c} strokeWidth="0.4" strokeOpacity="0.18"/>
+      </svg>
+      <span style={{ fontSize: '2.6rem', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.5))' }}>
+        {icon}
+      </span>
+    </div>
+  );
+}
+
 function ShieldVerifiedIcon({ size = 11, color }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -360,10 +400,8 @@ export default function AuctionCard({ auction }) {
           </div>
         </div>
 
-        {/* icon */}
-        <div style={{ fontSize: '2.2rem', marginBottom: '16px', lineHeight: 1 }}>
-          {auction.icon}
-        </div>
+        {/* visual */}
+        <AuctionVisual visual={auction.visual} icon={auction.icon} />
 
         {/* name */}
         <h3 style={{

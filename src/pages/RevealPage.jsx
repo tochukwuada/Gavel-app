@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { getAuction } from '../data/auctions';
 import { useIsMobile } from '../hooks/useIsMobile';
@@ -217,6 +218,10 @@ export default function RevealPage() {
   const [showStats, setShowStats] = useState(false);
   const [btnHover, setBtnHover] = useState(false);
   const [backHover, setBackHover] = useState(false);
+  const [showSettlementModal, setShowSettlementModal] = useState(false);
+  const [paymentSent, setPaymentSent] = useState(false);
+  const [purchaseHover, setPurchaseHover] = useState(false);
+  const [copiedWallet, setCopiedWallet] = useState(false);
 
   useEffect(() => {
     if (revealed) {
@@ -270,6 +275,7 @@ export default function RevealPage() {
   ];
 
   return (
+    <>
     <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px', cursor: 'default' }}>
       <div style={{
         maxWidth: '740px',
@@ -373,7 +379,7 @@ export default function RevealPage() {
           </div>
         </div>
 
-        {/* ── Reveal / New auction button ─────────────────── */}
+        {/* ── Reveal / Purchase / Browse buttons ─────────── */}
         {!revealed ? (
           <button
             onClick={() => setRevealed(true)}
@@ -403,27 +409,78 @@ export default function RevealPage() {
             Break the Seal
           </button>
         ) : (
-          <button
-            onClick={() => navigate('/')}
-            style={{
-              fontFamily: 'DM Mono, monospace',
-              fontSize: '0.65rem',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              padding: '14px 40px',
-              background: 'transparent',
-              color: btnHover ? C.purpleLight : C.textMuted,
-              border: `1px solid ${btnHover ? 'rgba(155,126,200,0.4)' : 'rgba(123,94,167,0.2)'}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'all 0.25s',
-              animation: 'fadeIn 0.6s ease both',
-            }}
-            onMouseEnter={() => setBtnHover(true)}
-            onMouseLeave={() => setBtnHover(false)}
-          >
-            Browse More Auctions
-          </button>
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
+            animation: 'fadeIn 0.6s ease both',
+          }}>
+            {paymentSent ? (
+              <div style={{
+                padding: '14px 28px',
+                background: 'rgba(126, 200, 156, 0.07)',
+                border: '1px solid rgba(126, 200, 156, 0.3)',
+                borderRadius: '9px',
+                display: 'flex', alignItems: 'center', gap: '10px',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="9" stroke="#7ec89c" strokeWidth="1.8"/>
+                  <path d="M8 12l3 3 5-5" stroke="#7ec89c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span style={{
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.62rem',
+                  color: '#7ec89c', letterSpacing: '0.12em', textTransform: 'uppercase',
+                }}>
+                  Payment Pending — Seller Notified
+                </span>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowSettlementModal(true)}
+                onMouseEnter={() => setPurchaseHover(true)}
+                onMouseLeave={() => setPurchaseHover(false)}
+                style={{
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  padding: '16px 48px',
+                  background: purchaseHover
+                    ? 'linear-gradient(135deg, #9B7EC8, #7B5EA7)'
+                    : 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s',
+                  transform: purchaseHover ? 'translateY(-2px)' : 'none',
+                  boxShadow: purchaseHover
+                    ? '0 16px 48px rgba(123, 94, 167, 0.55)'
+                    : '0 6px 28px rgba(123, 94, 167, 0.3)',
+                }}
+              >
+                Complete Purchase →
+              </button>
+            )}
+            <button
+              onClick={() => navigate('/')}
+              onMouseEnter={() => setBtnHover(true)}
+              onMouseLeave={() => setBtnHover(false)}
+              style={{
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.6rem',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                padding: '10px 28px',
+                background: 'transparent',
+                color: btnHover ? C.purpleLight : C.textMuted,
+                border: `1px solid ${btnHover ? 'rgba(155,126,200,0.4)' : 'rgba(123,94,167,0.2)'}`,
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.25s',
+              }}
+            >
+              Browse More Auctions
+            </button>
+          </div>
         )}
 
         {/* ── Result stats ─────────────────────────────────── */}
@@ -526,5 +583,196 @@ export default function RevealPage() {
         )}
       </div>
     </div>
+
+    {showSettlementModal && createPortal(
+
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(5, 5, 7, 0.88)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        backdropFilter: 'blur(6px)',
+        padding: '20px',
+      }}>
+        <div style={{
+          background: '#0c0a14',
+          border: '1px solid rgba(123, 94, 167, 0.28)',
+          borderRadius: '18px',
+          padding: '36px 32px',
+          maxWidth: '460px', width: '100%',
+          animation: 'fadeInUp 0.35s ease both',
+        }}>
+          <div style={{
+            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            letterSpacing: '0.28em', color: C.purple,
+            textTransform: 'uppercase', marginBottom: '10px',
+          }}>
+            Settlement
+          </div>
+          <h2 style={{
+            fontFamily: 'Cormorant Garamond, serif',
+            fontSize: '1.65rem', fontWeight: 600,
+            color: C.text, letterSpacing: '0.03em',
+            marginBottom: '6px',
+          }}>
+            Complete Your Purchase
+          </h2>
+          <p style={{
+            fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
+            color: C.textDark, letterSpacing: '0.05em',
+            lineHeight: 1.6, marginBottom: '28px',
+          }}>
+            Transfer the settlement amount to the seller's wallet. Include the exact memo so your payment is matched to this auction.
+          </p>
+
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            padding: '14px 16px',
+            background: 'rgba(123, 94, 167, 0.05)',
+            border: `1px solid ${C.border}`,
+            borderRadius: '10px', marginBottom: '16px',
+          }}>
+            <span style={{ fontSize: '1.6rem', flexShrink: 0 }}>{auction.icon}</span>
+            <div>
+              <div style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: '1.05rem', fontWeight: 500,
+                color: C.text, letterSpacing: '0.02em',
+              }}>
+                {auction.name}
+              </div>
+              <div style={{
+                fontFamily: 'DM Mono, monospace', fontSize: '0.54rem',
+                color: C.textDark, letterSpacing: '0.08em',
+              }}>
+                {auction.category}
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            padding: '16px 18px',
+            background: 'rgba(123, 94, 167, 0.08)',
+            border: '1px solid rgba(155, 126, 200, 0.25)',
+            borderRadius: '10px', marginBottom: '12px',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              fontFamily: 'DM Mono, monospace', fontSize: '0.52rem',
+              color: C.textDark, letterSpacing: '0.22em',
+              textTransform: 'uppercase', marginBottom: '6px',
+            }}>
+              Amount to Send
+            </div>
+            <div style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: '2rem', fontWeight: 600,
+              color: C.purpleLight,
+              textShadow: '0 0 30px rgba(155,126,200,0.4)',
+            }}>
+              ◎{settlement.toFixed(3)}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{
+              fontFamily: 'DM Mono, monospace', fontSize: '0.52rem',
+              color: C.textDark, letterSpacing: '0.2em',
+              textTransform: 'uppercase', marginBottom: '6px',
+            }}>
+              Seller Wallet
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '10px 14px',
+              background: 'rgba(5, 5, 7, 0.7)',
+              border: `1px solid ${C.border}`, borderRadius: '8px',
+            }}>
+              <span style={{
+                fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
+                color: C.textMuted, letterSpacing: '0.03em',
+                flex: 1, overflow: 'hidden', textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {auction.sellerWallet ?? 'Not provided'}
+              </span>
+              {auction.sellerWallet && (
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(auction.sellerWallet).catch(() => {});
+                    setCopiedWallet(true);
+                    setTimeout(() => setCopiedWallet(false), 2000);
+                  }}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.52rem',
+                    color: copiedWallet ? '#7ec89c' : C.textDark,
+                    letterSpacing: '0.08em', flexShrink: 0, padding: '2px 6px',
+                    transition: 'color 0.2s',
+                  }}
+                >
+                  {copiedWallet ? '✓ Copied' : 'Copy'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <div style={{
+              fontFamily: 'DM Mono, monospace', fontSize: '0.52rem',
+              color: C.textDark, letterSpacing: '0.2em',
+              textTransform: 'uppercase', marginBottom: '6px',
+            }}>
+              Memo (include exactly)
+            </div>
+            <div style={{
+              padding: '10px 14px',
+              background: 'rgba(5, 5, 7, 0.7)',
+              border: `1px solid ${C.border}`, borderRadius: '8px',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.62rem',
+              color: C.purpleLight, letterSpacing: '0.08em',
+            }}>
+              GAVEL:{id}
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => {
+                setPaymentSent(true);
+                setShowSettlementModal(false);
+              }}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',
+                color: '#fff', border: 'none', borderRadius: '8px',
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.64rem', letterSpacing: '0.12em',
+                textTransform: 'uppercase', cursor: 'pointer',
+                boxShadow: '0 6px 24px rgba(123, 94, 167, 0.35)',
+              }}
+            >
+              I've Sent Payment
+            </button>
+            <button
+              onClick={() => setShowSettlementModal(false)}
+              style={{
+                padding: '13px 20px',
+                background: 'transparent',
+                color: C.textMuted,
+                border: `1px solid rgba(123, 94, 167, 0.2)`,
+                borderRadius: '8px',
+                fontFamily: 'DM Mono, monospace',
+                fontSize: '0.62rem', letterSpacing: '0.1em',
+                textTransform: 'uppercase', cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body
+    )}
+    </>
   );
 }

@@ -37,11 +37,14 @@ function timeAgo(ts) {
 
 const BLANK_FORM = {
   name: '', description: '', auctionType: 'vickrey',
+  category: 'Custom', condition: 'Excellent',
   minBid: '', reservePrice: '', durationHours: '', icon: '',
   authDocName: '', authAuthority: '', authType: 'Physical Item', authContract: '',
 };
 
 const AUTH_TYPES = ['Physical Item', 'Digital Asset', 'NFT', 'Real Estate', 'Financial Instrument'];
+const CATEGORIES = ['Horology', 'Fine Art', 'Memorabilia', 'Textiles', 'Spirits', 'Gemstones', 'Digital Art', 'Access Token', 'Real Estate', 'Financial Instrument', 'Collectible', 'Custom'];
+const CONDITIONS = ['Mint', 'Excellent', 'Good', 'Fair'];
 
 function CreateModal({ onClose }) {
   const [form, setForm] = useState(BLANK_FORM);
@@ -117,7 +120,33 @@ function CreateModal({ onClose }) {
         </div>
 
         {field('name', 'Item Name *', 'e.g. Rolex Daytona Ref. 6263')}
-        {field('description', 'Description', 'Provenance, condition, edition info...')}
+        {field('description', 'Description', 'Provenance, edition info...')}
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '18px' }}>
+          {[
+            { key: 'category', label: 'Category', opts: CATEGORIES },
+            { key: 'condition', label: 'Condition', opts: CONDITIONS },
+          ].map(({ key, opts, label }) => (
+            <div key={key}>
+              <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
+                {label}
+              </label>
+              <select
+                value={form[key]}
+                onChange={e => setForm(f => ({ ...f, [key]: e.target.value }))}
+                style={{
+                  width: '100%', background: 'rgba(5, 5, 7, 0.8)',
+                  border: '1px solid rgba(123, 94, 167, 0.2)', borderRadius: '8px', outline: 'none',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
+                  color: C.text, padding: '11px 14px', letterSpacing: '0.04em',
+                  boxSizing: 'border-box', cursor: 'pointer',
+                }}
+              >
+                {opts.map(o => <option key={o} value={o} style={{ background: '#0c0a14' }}>{o}</option>)}
+              </select>
+            </div>
+          ))}
+        </div>
 
         <div style={{ marginBottom: '18px' }}>
           <div style={{
