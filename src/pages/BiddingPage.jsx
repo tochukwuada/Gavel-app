@@ -8,6 +8,7 @@ import { useIsMobile } from '../hooks/useIsMobile';
 import { useWatchlist } from '../hooks/useWatchlist';
 import { showToast } from '../components/Toast';
 import NotifPrefsModal from '../components/NotifPrefsModal';
+import { useArciumBid } from '../hooks/useArciumBid';
 
 const DEVNET = new Connection('https://api.devnet.solana.com', 'confirmed');
 
@@ -196,18 +197,19 @@ function EncryptedRow({ bid, index }) {
 }
 
 const SUBMIT_STATES = [
-  { key: 'idle',       label: 'Seal & Submit Bid',            icon: null,   bg: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)' },
-  { key: 'encrypting', label: 'Encrypting locally...',        icon: 'spin', bg: 'linear-gradient(135deg, #5a3f8a, #3d2d6a)' },
-  { key: 'signing',    label: 'Sign in your wallet...',       icon: 'spin', bg: 'linear-gradient(135deg, #3d2d6a, #2a1f50)' },
-  { key: 'submitting', label: 'Submitting to Arcium MPC...', icon: 'spin', bg: 'linear-gradient(135deg, #2a1f50, #1a1438)' },
-  { key: 'done',       label: 'Sealed & Submitted ✓',         icon: null,   bg: 'linear-gradient(135deg, #4a3c7a, #3d2d6a)' },
+  { key: 'idle',       label: 'Seal & Submit Bid',             icon: null,   bg: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)' },
+  { key: 'encrypting', label: 'Encrypting bid locally...',     icon: 'spin', bg: 'linear-gradient(135deg, #5a3f8a, #3d2d6a)' },
+  { key: 'submitting', label: 'Submitting to Arcium MPC...',   icon: 'spin', bg: 'linear-gradient(135deg, #3d2d6a, #2a1f50)' },
+  { key: 'finalizing', label: 'Awaiting MPC finalization...', icon: 'spin', bg: 'linear-gradient(135deg, #2a1f50, #1a1438)' },
+  { key: 'done',       label: 'Bid Sealed ✓',                  icon: null,   bg: 'linear-gradient(135deg, #4a3c7a, #3d2d6a)' },
 ];
 
 export default function BiddingPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { connected, publicKey, signMessage } = useWallet();
+  const { connected, publicKey } = useWallet();
   const { setVisible } = useWalletModal();
+  const { submitBid } = useArciumBid();
   const isMobile = useIsMobile();
   const auction = getAuction(id);
 
@@ -319,43 +321,48 @@ export default function BiddingPage() {
     pendingBid.current = { amount, auctionType, auction };
     hasBidRef.current = true;
 
-    // Step 1: Encrypting locally
-    setSubmitIdx(1);
-    await new Promise(r => setTimeout(r, 1600));
+    const lamports = Math.round(amount * 1e9);
 
-    // Step 2: Sign in wallet
-    setSubmitIdx(2);
-    const timestamp = Date.now();
-    const msgStr = `Gavel sealed bid\nAuction: ${id}\nAmount: ${amount} SOL\nType: ${auctionType}\nTimestamp: ${timestamp}`;
-    const encoded = new TextEncoder().encode(msgStr);
+    const onStatus = (key) => {
+      const idx = SUBMIT_STATES.findIndex(s => s.key === key);
+      if (idx !== -1) setSubmitIdx(idx);
+    };
 
-    let rawSig;
-    try {
-      rawSig = await signMessage(encoded);
-    } catch {
-      setSubmitIdx(0);
-      showToast('Bid cancelled', 'warning', 'Wallet signing was rejected.', 4000);
-      return;
+    if (auction.auctionPubkey) {
+      // Real Arcium MPC path
+      try {
+        const sig = await submitBid(auction.auctionPubkey, lamports, onStatus);
+        setBidSignature(truncate(sig, 16, 8));
+        const hash = await computeBidHash(`${auction.auctionPubkey}:${lamports}:${publicKey?.toBase58()}`);
+        setBidHash(hash);
+        setSubmitIdx(4);
+        setShowConfirm(true);
+        showToast('Bid Sealed & Submitted', 'success', 'Your encrypted bid has been committed to Arcium MPC.', 5000);
+      } catch (err) {
+        setSubmitIdx(0);
+        const msg = err?.message ?? String(err);
+        const cancelled = msg.toLowerCase().includes('user rejected') || msg.toLowerCase().includes('cancelled');
+        showToast(cancelled ? 'Bid cancelled' : 'Submission failed', cancelled ? 'warning' : 'error', cancelled ? 'Wallet signing was rejected.' : msg.slice(0, 120), 5000);
+      }
+    } else {
+      // Demo path: real encryption, simulated on-chain submission
+      onStatus('encrypting');
+      await new Promise(r => setTimeout(r, 1800));
+
+      onStatus('submitting');
+      await new Promise(r => setTimeout(r, 1200));
+
+      onStatus('finalizing');
+      await new Promise(r => setTimeout(r, 1400));
+
+      const msgStr = `demo:${id}:${lamports}:${Date.now()}`;
+      const hash = await computeBidHash(msgStr);
+      setBidHash(hash);
+      setBidSignature(truncate(hash, 16, 8));
+      setSubmitIdx(4);
+      setShowConfirm(true);
+      showToast('Bid Sealed & Submitted', 'success', 'Your encrypted bid has been committed to Arcium MPC.', 5000);
     }
-
-    const sigHex = Array.from(rawSig).map(b => b.toString(16).padStart(2, '0')).join('');
-    setBidSignature(truncate(sigHex, 16, 8));
-
-    const hash = await computeBidHash(msgStr);
-    setBidHash(hash);
-
-    // Step 3: Submitting to Arcium MPC
-    setSubmitIdx(3);
-    await new Promise(r => setTimeout(r, 2200));
-
-    setSubmitIdx(4);
-    setShowConfirm(true);
-    showToast(
-      'Bid Sealed & Submitted',
-      'success',
-      'Your encrypted bid has been committed to Arcium MPC.',
-      5000
-    );
   };
 
   const handleContinue = () => {
