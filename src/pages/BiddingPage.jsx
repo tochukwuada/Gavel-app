@@ -44,7 +44,7 @@ function CountdownTimer({ auction }) {
       setTl(getTimeLeft(auction));
     }, 1000);
     return () => clearInterval(iv);
-  }, []);
+  }, [auction]);
 
   const totalS = Math.floor(tl / 1000);
   const h = Math.floor(totalS / 3600);
@@ -246,6 +246,7 @@ export default function BiddingPage() {
   }, [connected, publicKey]);
 
   // Toast: auction ending soon (once per session per auction)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!auction) return;
     const key = `gavel:ending-shown-${id}`;
@@ -261,6 +262,7 @@ export default function BiddingPage() {
   }, []);
 
   // Toast: outbid simulation after 30s (only if no bid placed yet)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!auction) return;
     const t = setTimeout(() => {
@@ -374,7 +376,7 @@ export default function BiddingPage() {
 
   return (
     <>
-    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px', cursor: 'default' }}>
       {/* ── Auction header ───────────────────────────────── */}
       <div style={{
         background: 'rgba(12, 10, 20, 0.8)',

@@ -1,12 +1,15 @@
+* {
+  cursor: default !important;
+}
+
+a, button, [onclick], [role="button"] {
+  cursor: pointer !important;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  cursor: default;
-}
-
-a, button {
-  cursor: pointer;
 }
 
 html {

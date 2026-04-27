@@ -25,7 +25,6 @@ function fmt(ms) {
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const now = Date.now();
 
   const active = AUCTIONS.filter(a => getTimeLeft(a) > 0);
   const totalBids = AUCTIONS.reduce((sum, a) => sum + a.bidCount, 0);
@@ -40,7 +39,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px', cursor: 'default' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '48px 48px 100px' }}>
 
         {/* header */}

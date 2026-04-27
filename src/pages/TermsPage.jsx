@@ -164,7 +164,7 @@ export default function TermsPage() {
   const isMobile = useIsMobile();
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px', cursor: 'default' }}>
       <div style={{
         maxWidth: '820px',
         margin: '0 auto',

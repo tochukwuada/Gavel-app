@@ -251,7 +251,7 @@ export default function HowItWorksPage() {
   const isMobile = useIsMobile();
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px', cursor: 'default' }}>
 
       {/* ── Back button ───────────────────────────────────── */}
       <div style={{

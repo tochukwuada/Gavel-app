@@ -23,7 +23,7 @@ export default function WatchlistPage() {
   const saved = AUCTIONS.filter(a => watchlist.includes(a.id));
 
   return (
-    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
+    <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px', cursor: 'default' }}>
       <div style={{ maxWidth: '1420px', margin: '0 auto', padding: isMobile ? '40px 16px 80px' : '60px 60px 100px', width: '100%' }}>
 
         {/* back */}
