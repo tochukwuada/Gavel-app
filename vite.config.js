@@ -7,6 +7,7 @@ export default defineConfig({
     global: 'globalThis',
     'process.env': '{}',
     'process.browser': 'true',
+    'Buffer': ['buffer', 'Buffer'],
   },
   resolve: {
     alias: {

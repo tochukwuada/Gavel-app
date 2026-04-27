@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { useCallback } from 'react';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import {
