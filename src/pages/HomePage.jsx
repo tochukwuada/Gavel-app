@@ -70,9 +70,11 @@ export default function HomePage() {
               fontSize: '0.58rem',
               letterSpacing: '0.1em',
               color: C.textMuted,
+              cursor: 'default',
+              userSelect: 'none',
             }}>
               Gavel is invite-only.{' '}
-              <span style={{ color: C.purpleLight }}>
+              <span style={{ color: C.purpleLight, cursor: 'default', userSelect: 'none' }}>
                 Connect your wallet to participate in auctions.
               </span>
             </span>
@@ -114,6 +116,7 @@ export default function HomePage() {
         position: 'relative',
         padding: connected ? '120px 40px 100px' : '148px 40px 100px',
         overflow: 'hidden',
+        cursor: 'default',
         background: `
           radial-gradient(ellipse 75% 55% at 50% -5%, rgba(123, 94, 167, 0.32) 0%, transparent 65%),
           radial-gradient(ellipse 40% 35% at 15% 85%, rgba(90, 60, 140, 0.1) 0%, transparent 55%),
@@ -153,6 +156,8 @@ export default function HomePage() {
           alignItems: 'center',
           gap: '10px',
           animation: 'fadeInUp 0.9s ease both',
+          cursor: 'default',
+          userSelect: 'none',
         }}>
           <span style={{
             width: '5px', height: '5px', borderRadius: '50%',
@@ -177,6 +182,8 @@ export default function HomePage() {
           marginBottom: '32px',
           animation: 'fadeInUp 0.9s ease 0.1s both',
           textShadow: '0 0 80px rgba(155, 126, 200, 0.18)',
+          cursor: 'default',
+          userSelect: 'none',
         }}>
           GAVEL
         </h1>
@@ -192,6 +199,8 @@ export default function HomePage() {
           lineHeight: 1.65,
           marginBottom: '14px',
           animation: 'fadeInUp 0.9s ease 0.2s both',
+          cursor: 'default',
+          userSelect: 'none',
         }}>
           The first sealed-bid auction house where every bid is encrypted.
           No front-running. No collusion. No surveillance.
@@ -204,6 +213,8 @@ export default function HomePage() {
           letterSpacing: '0.12em',
           marginBottom: '52px',
           animation: 'fadeInUp 0.9s ease 0.3s both',
+          cursor: 'default',
+          userSelect: 'none',
         }}>
           Powered by Arcium's Multi-Party Computation
         </p>
@@ -269,6 +280,8 @@ export default function HomePage() {
           transform: 'translateX(-50%)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
           animation: 'fadeInUp 1s ease 1.2s both',
+          cursor: 'default',
+          userSelect: 'none',
         }}>
           <span style={{
             fontFamily: 'DM Mono, monospace',
@@ -276,6 +289,8 @@ export default function HomePage() {
             color: C.textDark,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
+            cursor: 'default',
+            userSelect: 'none',
           }}>
             Scroll
           </span>
@@ -298,7 +313,7 @@ export default function HomePage() {
         flexWrap: 'wrap',
       }}>
         {STATS.map((s) => (
-          <div key={s.label} style={{ textAlign: 'center', minWidth: '80px' }}>
+          <div key={s.label} style={{ textAlign: 'center', minWidth: '80px', cursor: 'default' }}>
             <div style={{
               fontFamily: 'Cormorant Garamond, serif',
               fontSize: '2.2rem',
@@ -307,6 +322,8 @@ export default function HomePage() {
               color: s.highlight ? C.purpleLight : C.text,
               letterSpacing: '0.03em',
               textShadow: s.highlight ? '0 0 40px rgba(155, 126, 200, 0.55)' : 'none',
+              cursor: 'default',
+              userSelect: 'none',
             }}>
               {s.value}
             </div>
@@ -317,6 +334,8 @@ export default function HomePage() {
               textTransform: 'uppercase',
               color: s.highlight ? C.purple : C.textDark,
               marginTop: '5px',
+              cursor: 'default',
+              userSelect: 'none',
             }}>
               {s.label}
             </div>
@@ -380,6 +399,7 @@ export default function HomePage() {
               background: 'rgba(12, 10, 20, 0.6)',
               border: '1px solid rgba(123, 94, 167, 0.12)',
               borderRadius: '14px',
+              cursor: 'default',
             }}>
               <div style={{
                 width: '44px', height: '44px',
@@ -398,6 +418,8 @@ export default function HomePage() {
                 color: C.purple,
                 textTransform: 'uppercase',
                 marginBottom: '7px',
+                cursor: 'default',
+                userSelect: 'none',
               }}>
                 {p.tag}
               </div>
@@ -408,6 +430,8 @@ export default function HomePage() {
                 color: C.text,
                 letterSpacing: '0.02em',
                 marginBottom: '10px',
+                cursor: 'default',
+                userSelect: 'none',
               }}>
                 {p.label}
               </h3>
@@ -417,6 +441,8 @@ export default function HomePage() {
                 color: C.textDark,
                 lineHeight: 1.75,
                 letterSpacing: '0.04em',
+                cursor: 'default',
+                userSelect: 'none',
               }}>
                 {p.body}
               </p>
@@ -435,6 +461,8 @@ export default function HomePage() {
             color: C.purple,
             textTransform: 'uppercase',
             marginBottom: '12px',
+            cursor: 'default',
+            userSelect: 'none',
           }}>
             Live Auctions
           </div>
@@ -446,6 +474,8 @@ export default function HomePage() {
             letterSpacing: '0.04em',
             lineHeight: 1.1,
             marginBottom: '10px',
+            cursor: 'default',
+            userSelect: 'none',
           }}>
             Current Listings
           </h2>
@@ -454,6 +484,8 @@ export default function HomePage() {
             fontSize: '0.62rem',
             color: C.textDark,
             letterSpacing: '0.1em',
+            cursor: 'default',
+            userSelect: 'none',
           }}>
             All bids are sealed by Arcium MPC until the auction closes — zero leakage guaranteed.
           </p>

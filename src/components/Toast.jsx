@@ -18,12 +18,13 @@ function Toast({ toast, onDismiss }) {
   const s = TYPE[toast.type] || TYPE.info;
 
   useEffect(() => {
+    let innerT;
     const raf = requestAnimationFrame(() => setVisible(true));
     const t = setTimeout(() => {
       setVisible(false);
-      setTimeout(() => onDismiss(toast.id), 320);
+      innerT = setTimeout(() => onDismiss(toast.id), 320);
     }, toast.duration);
-    return () => { cancelAnimationFrame(raf); clearTimeout(t); };
+    return () => { cancelAnimationFrame(raf); clearTimeout(t); clearTimeout(innerT); };
   }, []);
 
   return (
