@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useWalletModal } from '@solana/wallet-adapter-react-ui';
+import { Connection } from '@solana/web3.js';
 import { getAuction, getTimeLeft } from '../data/auctions';
 import { useIsMobile } from '../hooks/useIsMobile';
+import { useWatchlist } from '../hooks/useWatchlist';
+import { showToast } from '../components/Toast';
+import NotifPrefsModal from '../components/NotifPrefsModal';
+
+const DEVNET = new Connection('https://api.devnet.solana.com', 'confirmed');
 
 const C = {
   bg: '#050507',
@@ -16,6 +24,17 @@ const C = {
 };
 
 const pad = (n) => String(Math.floor(n)).padStart(2, '0');
+
+const SOL_PRICE = 150;
+
+async function computeBidHash(message) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function truncate(hex, head = 16, tail = 8) {
+  return hex.slice(0, head) + '…' + hex.slice(-tail);
+}
 
 function CountdownTimer({ auction }) {
   const [tl, setTl] = useState(() => getTimeLeft(auction));
@@ -140,19 +159,26 @@ function EncryptedRow({ bid, index }) {
         </span>
       </div>
 
+      {/* Sealed badge — no currency or amount shown */}
       <span style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.82rem',
-        background: 'linear-gradient(90deg, #2a1f3d, #7B5EA7 30%, #9B7EC8 50%, #7B5EA7 70%, #2a1f3d)',
-        backgroundSize: '200% auto',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        animation: `shimmer ${3 + (index % 3) * 0.5}s linear infinite`,
-        letterSpacing: '2px',
-        userSelect: 'none',
+        fontSize: '0.55rem',
+        color: C.textDark,
+        letterSpacing: '0.1em',
+        background: 'rgba(123, 94, 167, 0.06)',
+        border: '1px solid rgba(123, 94, 167, 0.12)',
+        padding: '3px 10px',
+        borderRadius: '12px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '5px',
+        flexShrink: 0,
       }}>
-        ████████████
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="11" width="14" height="11" rx="2" stroke="#4e4660" strokeWidth="2"/>
+          <path d="M8 11V7a4 4 0 018 0v4" stroke="#4e4660" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
+        Encrypted
       </span>
 
       <span style={{
@@ -170,28 +196,84 @@ function EncryptedRow({ bid, index }) {
 }
 
 const SUBMIT_STATES = [
-  { key: 'idle',       label: 'Place Sealed Bid',          icon: null,     bg: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)' },
-  { key: 'encrypting', label: 'Encrypting locally...',      icon: 'spin',   bg: 'linear-gradient(135deg, #5a3f8a, #3d2d6a)' },
-  { key: 'submitting', label: 'Submitting to Arcium MPC...', icon: 'spin',  bg: 'linear-gradient(135deg, #3d2d6a, #2a1f50)' },
-  { key: 'done',       label: 'Sealed & Submitted ✓',       icon: null,     bg: 'linear-gradient(135deg, #4a3c7a, #3d2d6a)' },
+  { key: 'idle',       label: 'Seal & Submit Bid',            icon: null,   bg: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)' },
+  { key: 'encrypting', label: 'Encrypting locally...',        icon: 'spin', bg: 'linear-gradient(135deg, #5a3f8a, #3d2d6a)' },
+  { key: 'signing',    label: 'Sign in your wallet...',       icon: 'spin', bg: 'linear-gradient(135deg, #3d2d6a, #2a1f50)' },
+  { key: 'submitting', label: 'Submitting to Arcium MPC...', icon: 'spin', bg: 'linear-gradient(135deg, #2a1f50, #1a1438)' },
+  { key: 'done',       label: 'Sealed & Submitted ✓',         icon: null,   bg: 'linear-gradient(135deg, #4a3c7a, #3d2d6a)' },
 ];
 
 export default function BiddingPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { connected, publicKey, signMessage } = useWallet();
+  const { setVisible } = useWalletModal();
   const isMobile = useIsMobile();
   const auction = getAuction(id);
 
-  const [auctionType, setAuctionType] = useState('vickrey');
+  const { toggle, isWatched } = useWatchlist();
+  const watched = isWatched(auction?.id);
+  const [showNotifModal, setShowNotifModal] = useState(false);
+  const [watchHover, setWatchHover] = useState(false);
+
+  const [auctionType, setAuctionType] = useState(() => auction?.auctionType ?? 'vickrey');
   const [bidValue, setBidValue] = useState('');
   const [submitIdx, setSubmitIdx] = useState(0);
   const [inputFocused, setInputFocused] = useState(false);
   const [typeHover, setTypeHover] = useState(null);
-  const timerIds = useRef([]);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [bidHash, setBidHash] = useState(null);
+  const [bidSignature, setBidSignature] = useState(null);
+  const [continueHover, setContinueHover] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(null);
+  const [balanceLoading, setBalanceLoading] = useState(false);
+  const pendingBid = useRef(null);
+  const hasBidRef = useRef(false);
 
-  // Clean up all pending submit timeouts if component unmounts mid-flow
+  // Fetch devnet wallet balance whenever the connected wallet changes
   useEffect(() => {
-    return () => timerIds.current.forEach(clearTimeout);
+    if (!connected || !publicKey) {
+      setWalletBalance(null);
+      return;
+    }
+    let cancelled = false;
+    setBalanceLoading(true);
+    DEVNET.getBalance(publicKey)
+      .then(lamports => { if (!cancelled) setWalletBalance(lamports / 1e9); })
+      .catch(() => { if (!cancelled) setWalletBalance(null); })
+      .finally(() => { if (!cancelled) setBalanceLoading(false); });
+    return () => { cancelled = true; };
+  }, [connected, publicKey]);
+
+  // Toast: auction ending soon (once per session per auction)
+  useEffect(() => {
+    if (!auction) return;
+    const key = `gavel:ending-shown-${id}`;
+    if (getTimeLeft(auction) < 60 * 60 * 1000 && !sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1');
+      showToast(
+        'Auction Ending Soon',
+        'warning',
+        `${auction.name} closes in under an hour.`,
+        5000
+      );
+    }
+  }, []);
+
+  // Toast: outbid simulation after 30s (only if no bid placed yet)
+  useEffect(() => {
+    if (!auction) return;
+    const t = setTimeout(() => {
+      if (!hasBidRef.current) {
+        showToast(
+          "You've been outbid",
+          'outbid',
+          `Place a new bid on "${auction.name}" to stay in the lead.`,
+          6000
+        );
+      }
+    }, 30000);
+    return () => clearTimeout(t);
   }, []);
 
   if (!auction) {
@@ -203,30 +285,82 @@ export default function BiddingPage() {
   }
 
   const currentState = SUBMIT_STATES[submitIdx];
-  const isProcessing = submitIdx > 0 && submitIdx < 3;
-  const isDone = submitIdx === 3;
+  const isProcessing = submitIdx >= 1 && submitIdx <= 3;
+  const isDone = submitIdx === 4;
 
-  const handleSubmit = () => {
-    // Capture amount immediately — prevents stale closure if input changes
-    // during the 4.5 s animation sequence before navigate fires.
-    const amount = parseFloat(bidValue);
-    if (!amount || amount <= 0 || isProcessing || isDone) return;
+  const bidAmount = parseFloat(bidValue) || 0;
+  const minBid = auction?.minBid ?? 0;
+  const overBalance = walletBalance !== null && bidAmount > 0 && bidAmount > walletBalance;
+  const underMinBid = bidAmount > 0 && minBid > 0 && bidAmount < minBid;
+  const bidError = overBalance
+    ? `Insufficient balance. Your wallet holds ◎${walletBalance.toFixed(3)}. Please enter a lower bid.`
+    : underMinBid
+    ? `Bid must be at least ◎${minBid}`
+    : null;
+  const bidValid = bidAmount > 0 && !overBalance && !underMinBid;
 
+  const inputBorderColor = !bidValue
+    ? (inputFocused ? C.purple : 'rgba(123, 94, 167, 0.2)')
+    : bidError
+    ? 'rgba(224, 124, 124, 0.55)'
+    : 'rgba(126, 200, 156, 0.5)';
+
+  const inputShadow = !bidValue
+    ? (inputFocused ? '0 0 0 3px rgba(123, 94, 167, 0.12)' : 'none')
+    : bidError
+    ? '0 0 0 3px rgba(224, 124, 124, 0.07)'
+    : '0 0 0 3px rgba(126, 200, 156, 0.07)';
+
+  const handleSubmit = async () => {
+    const amount = bidAmount;
+    if (!bidValid || isProcessing || isDone) return;
+    pendingBid.current = { amount, auctionType, auction };
+    hasBidRef.current = true;
+
+    // Step 1: Encrypting locally
     setSubmitIdx(1);
-    const t1 = setTimeout(() => {
-      setSubmitIdx(2);
-      const t2 = setTimeout(() => {
-        setSubmitIdx(3);
-        const t3 = setTimeout(() => {
-          navigate(`/auction/${id}/reveal`, {
-            state: { bidAmount: amount, auctionType, auction },
-          });
-        }, 700);
-        timerIds.current.push(t3);
-      }, 2200);
-      timerIds.current.push(t2);
-    }, 1600);
-    timerIds.current.push(t1);
+    await new Promise(r => setTimeout(r, 1600));
+
+    // Step 2: Sign in wallet
+    setSubmitIdx(2);
+    const timestamp = Date.now();
+    const msgStr = `Gavel sealed bid\nAuction: ${id}\nAmount: ${amount} SOL\nType: ${auctionType}\nTimestamp: ${timestamp}`;
+    const encoded = new TextEncoder().encode(msgStr);
+
+    let rawSig;
+    try {
+      rawSig = await signMessage(encoded);
+    } catch {
+      setSubmitIdx(0);
+      showToast('Bid cancelled', 'warning', 'Wallet signing was rejected.', 4000);
+      return;
+    }
+
+    const sigHex = Array.from(rawSig).map(b => b.toString(16).padStart(2, '0')).join('');
+    setBidSignature(truncate(sigHex, 16, 8));
+
+    const hash = await computeBidHash(msgStr);
+    setBidHash(hash);
+
+    // Step 3: Submitting to Arcium MPC
+    setSubmitIdx(3);
+    await new Promise(r => setTimeout(r, 2200));
+
+    setSubmitIdx(4);
+    setShowConfirm(true);
+    showToast(
+      'Bid Sealed & Submitted',
+      'success',
+      'Your encrypted bid has been committed to Arcium MPC.',
+      5000
+    );
+  };
+
+  const handleContinue = () => {
+    const { amount, auctionType: at, auction: a } = pendingBid.current;
+    navigate(`/auction/${id}/reveal`, {
+      state: { bidAmount: amount, auctionType: at, auction: a },
+    });
   };
 
   const TYPE_INFO = {
@@ -234,10 +368,12 @@ export default function BiddingPage() {
     vickrey: 'Winner pays the second-highest bid. Dominant strategy: bid your true valuation.',
   };
 
-  const ETH_PRICE = 3240;
-  const usdValue = bidValue ? (parseFloat(bidValue) * ETH_PRICE).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }) : null;
+  const usdValue = bidValue
+    ? (parseFloat(bidValue) * SOL_PRICE).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+    : null;
 
   return (
+    <>
     <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
       {/* ── Auction header ───────────────────────────────── */}
       <div style={{
@@ -288,17 +424,64 @@ export default function BiddingPage() {
               <span style={{ fontSize: '1.6rem' }}>{auction.icon}</span>
             </div>
 
-            <h1 style={{
-              fontFamily: 'Cormorant Garamond, serif',
-              fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',
-              fontWeight: 600,
-              color: C.text,
-              lineHeight: 1.15,
-              letterSpacing: '0.02em',
-              marginBottom: '10px',
-            }}>
-              {auction.name}
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
+              <h1 style={{
+                fontFamily: 'Cormorant Garamond, serif',
+                fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',
+                fontWeight: 600,
+                color: C.text,
+                lineHeight: 1.15,
+                letterSpacing: '0.02em',
+                margin: 0, flex: 1,
+              }}>
+                {auction.name}
+              </h1>
+
+              {/* watchlist toggle */}
+              <button
+                onClick={() => {
+                  const adding = !watched;
+                  toggle(auction.id);
+                  if (adding) {
+                    showToast('Added to Watchlist', 'success');
+                    setShowNotifModal(true);
+                  } else {
+                    showToast('Removed from Watchlist', 'info');
+                  }
+                }}
+                onMouseEnter={() => setWatchHover(true)}
+                onMouseLeave={() => setWatchHover(false)}
+                style={{
+                  background: watched
+                    ? 'rgba(123, 94, 167, 0.15)'
+                    : watchHover ? 'rgba(123, 94, 167, 0.08)' : 'rgba(123, 94, 167, 0.04)',
+                  border: `1px solid ${watched ? 'rgba(155, 126, 200, 0.4)' : 'rgba(123, 94, 167, 0.2)'}`,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  padding: '8px 12px',
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  transition: 'all 0.2s',
+                  flexShrink: 0,
+                  marginTop: '4px',
+                }}
+                title={watched ? 'Remove from watchlist' : 'Save to watchlist'}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24"
+                  fill={watched ? C.purpleLight : 'none'}>
+                  <path d="M5 3h14a1 1 0 011 1v17l-8-4-8 4V4a1 1 0 011-1z"
+                    stroke={watched ? C.purpleLight : C.textMuted}
+                    strokeWidth="1.5" strokeLinejoin="round"/>
+                </svg>
+                <span style={{
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                  letterSpacing: '0.12em', textTransform: 'uppercase',
+                  color: watched ? C.purpleLight : C.textMuted,
+                  transition: 'color 0.2s',
+                }}>
+                  {watched ? 'Saved' : 'Watch'}
+                </span>
+              </button>
+            </div>
 
             <p style={{
               fontFamily: 'DM Mono, monospace',
@@ -346,9 +529,111 @@ export default function BiddingPage() {
         width: '100%',
         alignItems: 'start',
       }}>
-        {/* ── LEFT: Timer + bid history ─────────────────── */}
+        {/* ── LEFT: Timer + authenticity + bid history ─────── */}
         <div>
           <CountdownTimer auction={auction} />
+
+          {/* ── Authenticity panel ───────────────────────── */}
+          {auction.authenticity?.verified ? (
+            <div style={{
+              marginTop: '20px',
+              background: 'rgba(126, 200, 156, 0.04)',
+              border: '1px solid rgba(126, 200, 156, 0.2)',
+              borderRadius: '12px',
+              overflow: 'hidden',
+            }}>
+              {/* header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '14px 18px',
+                borderBottom: '1px solid rgba(126, 200, 156, 0.12)',
+                background: 'rgba(126, 200, 156, 0.04)',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
+                  <path d="M12 2L3 7V12C3 16.55 6.84 20.74 12 22C17.16 20.74 21 16.55 21 12V7L12 2Z"
+                    stroke="#7ec89c" strokeWidth="1.8" strokeLinejoin="round"/>
+                  <path d="M8.5 12L11 14.5L15.5 10" stroke="#7ec89c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span style={{
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
+                  color: '#7ec89c', letterSpacing: '0.14em', textTransform: 'uppercase',
+                }}>
+                  Authenticity Verified
+                </span>
+              </div>
+
+              {/* rows */}
+              {[
+                { label: 'Verification ID', value: auction.authenticity.id },
+                { label: 'Type', value: auction.authenticity.type },
+                { label: 'Issuing Authority', value: auction.authenticity.authority },
+                { label: 'Document Ref', value: auction.authenticity.docRef },
+                ...(auction.authenticity.smartContract ? [{ label: 'Smart Contract', value: auction.authenticity.smartContract }] : []),
+                { label: 'Verified', value: auction.authenticity.verifiedAt },
+              ].map((row, i, arr) => (
+                <div key={row.label} style={{
+                  display: 'grid', gridTemplateColumns: '130px 1fr',
+                  gap: '8px', padding: '10px 18px',
+                  borderBottom: i < arr.length - 1 ? '1px solid rgba(126, 200, 156, 0.07)' : 'none',
+                }}>
+                  <span style={{
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.52rem',
+                    color: C.textDark, letterSpacing: '0.12em', textTransform: 'uppercase',
+                  }}>
+                    {row.label}
+                  </span>
+                  <span style={{
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
+                    color: C.textMuted, letterSpacing: '0.03em',
+                    wordBreak: 'break-all', lineHeight: 1.5,
+                  }}>
+                    {row.value}
+                  </span>
+                </div>
+              ))}
+
+              {/* guarantee note */}
+              <div style={{
+                padding: '12px 18px',
+                borderTop: '1px solid rgba(126, 200, 156, 0.1)',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                color: '#7ec89c', letterSpacing: '0.06em',
+              }}>
+                Authenticity guaranteed by Gavel
+              </div>
+            </div>
+          ) : (
+            <div style={{
+              marginTop: '20px',
+              padding: '16px 18px',
+              background: 'rgba(212, 168, 68, 0.05)',
+              border: '1px solid rgba(212, 168, 68, 0.22)',
+              borderRadius: '12px',
+              display: 'flex', gap: '12px', alignItems: 'flex-start',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: '1px' }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  stroke="#d4a844" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="12" y1="9" x2="12" y2="13" stroke="#d4a844" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="12" y1="17" x2="12.01" y2="17" stroke="#d4a844" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <div>
+                <div style={{
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
+                  color: '#d4a844', letterSpacing: '0.1em',
+                  textTransform: 'uppercase', marginBottom: '5px',
+                }}>
+                  Unverified Item
+                </div>
+                <div style={{
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.58rem',
+                  color: C.textMuted, lineHeight: 1.65, letterSpacing: '0.04em',
+                }}>
+                  This item has not been verified by Gavel. No proof of ownership or certificate of authenticity has been submitted. Bid with caution.
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Sealed bid ledger */}
           <div style={{ marginTop: '28px' }}>
@@ -389,9 +674,22 @@ export default function BiddingPage() {
               overflow: 'hidden',
               background: 'rgba(12, 10, 20, 0.6)',
             }}>
-              {auction.fakeBids.map((bid, i) => (
-                <EncryptedRow key={i} bid={bid} index={i} />
-              ))}
+              {auction.fakeBids.length > 0
+                ? auction.fakeBids.map((bid, i) => (
+                    <EncryptedRow key={i} bid={bid} index={i} />
+                  ))
+                : (
+                  <div style={{
+                    padding: '32px',
+                    textAlign: 'center',
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.6rem',
+                    color: C.textDark,
+                    letterSpacing: '0.1em',
+                  }}>
+                    No bids yet — be the first
+                  </div>
+                )}
             </div>
 
             <div style={{
@@ -458,253 +756,514 @@ export default function BiddingPage() {
             </div>
           </div>
 
-          {/* Auction type toggle */}
-          <div style={{ marginBottom: '24px' }}>
+          {/* ── Not connected: hide form, show prompt ──── */}
+          {!connected ? (
             <div style={{
-              fontFamily: 'DM Mono, monospace',
-              fontSize: '0.55rem',
-              letterSpacing: '0.2em',
-              color: C.textDark,
-              textTransform: 'uppercase',
-              marginBottom: '10px',
-            }}>
-              Auction Type
-            </div>
-
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '8px',
-            }}>
-              {[
-                { key: 'first-price', label: 'First-Price' },
-                { key: 'vickrey',     label: 'Vickrey' },
-              ].map((t) => (
-                <button
-                  key={t.key}
-                  style={{
-                    fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.62rem',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    padding: '11px 8px',
-                    background: auctionType === t.key
-                      ? 'rgba(123, 94, 167, 0.2)'
-                      : typeHover === t.key
-                        ? 'rgba(123, 94, 167, 0.07)'
-                        : 'rgba(12, 10, 20, 0.6)',
-                    color: auctionType === t.key ? C.purpleLight : C.textMuted,
-                    border: `1px solid ${auctionType === t.key ? C.purple : 'rgba(123, 94, 167, 0.14)'}`,
-                    borderRadius: '7px',
-                    cursor: 'pointer',
-                    transition: 'all 0.22s',
-                  }}
-                  onMouseEnter={() => setTypeHover(t.key)}
-                  onMouseLeave={() => setTypeHover(null)}
-                  onClick={() => setAuctionType(t.key)}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Type explanation */}
-            <div style={{
-              marginTop: '10px',
-              padding: '10px 14px',
-              background: 'rgba(123, 94, 167, 0.04)',
-              border: `1px solid rgba(123, 94, 167, 0.1)`,
-              borderRadius: '7px',
-              fontFamily: 'DM Mono, monospace',
-              fontSize: '0.58rem',
-              color: C.textMuted,
-              lineHeight: 1.65,
-              letterSpacing: '0.04em',
-              animation: 'slideDown 0.25s ease',
-            }}>
-              {TYPE_INFO[auctionType]}
-            </div>
-          </div>
-
-          {/* Bid input */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{
-              display: 'block',
-              fontFamily: 'DM Mono, monospace',
-              fontSize: '0.55rem',
-              letterSpacing: '0.2em',
-              color: C.textDark,
-              textTransform: 'uppercase',
-              marginBottom: '10px',
-            }}>
-              Your Sealed Bid (ETH)
-            </label>
-
-            <div style={{
-              position: 'relative',
-              border: `1px solid ${inputFocused ? C.purple : 'rgba(123, 94, 167, 0.2)'}`,
-              borderRadius: '9px',
-              background: 'rgba(5, 5, 7, 0.8)',
-              transition: 'border-color 0.22s',
-              boxShadow: inputFocused ? `0 0 0 3px rgba(123, 94, 167, 0.12)` : 'none',
-            }}>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={bidValue}
-                onChange={(e) => setBidValue(e.target.value)}
-                onFocus={() => setInputFocused(true)}
-                onBlur={() => setInputFocused(false)}
-                disabled={isProcessing || isDone}
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  fontFamily: 'DM Mono, monospace',
-                  fontSize: '1.5rem',
-                  fontWeight: 400,
-                  color: C.text,
-                  padding: '16px 60px 16px 18px',
-                  letterSpacing: '0.04em',
-                }}
-              />
-              <span style={{
-                position: 'absolute',
-                right: '16px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                fontFamily: 'DM Mono, monospace',
-                fontSize: '0.7rem',
-                color: C.purple,
-                letterSpacing: '0.08em',
-                pointerEvents: 'none',
-              }}>
-                ETH
-              </span>
-            </div>
-
-            {usdValue && (
-              <div style={{
-                marginTop: '6px',
-                fontFamily: 'DM Mono, monospace',
-                fontSize: '0.58rem',
-                color: C.textDark,
-                letterSpacing: '0.08em',
-                paddingLeft: '2px',
-                animation: 'fadeIn 0.2s ease',
-              }}>
-                ≈ {usdValue} USD
-              </div>
-            )}
-          </div>
-
-          {/* Privacy notice */}
-          <div style={{
-            padding: '12px 14px',
-            background: 'rgba(123, 94, 167, 0.05)',
-            border: `1px solid rgba(123, 94, 167, 0.12)`,
-            borderRadius: '8px',
-            marginBottom: '20px',
-            display: 'flex',
-            gap: '10px',
-            alignItems: 'flex-start',
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: '1px' }}>
-              <rect x="5" y="11" width="14" height="11" rx="2" stroke="#7B5EA7" strokeWidth="1.8"/>
-              <path d="M8 11V7a4 4 0 018 0v4" stroke="#7B5EA7" strokeWidth="1.8" strokeLinecap="round"/>
-            </svg>
-            <div>
-              <div style={{
-                fontFamily: 'DM Mono, monospace',
-                fontSize: '0.58rem',
-                color: C.purple,
-                letterSpacing: '0.1em',
-                marginBottom: '3px',
-              }}>
-                End-to-end encrypted
-              </div>
-              <div style={{
-                fontFamily: 'DM Mono, monospace',
-                fontSize: '0.55rem',
-                color: C.textDark,
-                lineHeight: 1.6,
-                letterSpacing: '0.04em',
-              }}>
-                Your bid is encrypted locally before transmission. Not even Gavel can see it.
-              </div>
-            </div>
-          </div>
-
-          {/* Submit button */}
-          <button
-            onClick={handleSubmit}
-            disabled={!bidValue || parseFloat(bidValue) <= 0 || isProcessing || isDone}
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: (!bidValue || parseFloat(bidValue) <= 0)
-                ? 'rgba(123, 94, 167, 0.15)'
-                : currentState.bg,
-              color: (!bidValue || parseFloat(bidValue) <= 0) ? C.textDark : '#fff',
-              border: 'none',
-              borderRadius: '9px',
-              fontFamily: 'DM Mono, monospace',
-              fontSize: '0.72rem',
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              cursor: (!bidValue || parseFloat(bidValue) <= 0 || isProcessing || isDone) ? 'not-allowed' : 'pointer',
-              transition: 'all 0.35s',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px',
-              boxShadow: (bidValue && parseFloat(bidValue) > 0 && !isProcessing && !isDone)
-                ? '0 8px 32px rgba(123, 94, 167, 0.35)'
-                : 'none',
-            }}
-          >
-            {(submitIdx === 1 || submitIdx === 2) && (
+              padding: '48px 24px',
+              textAlign: 'center',
+              gap: '16px',
+            }}>
               <div style={{
-                width: '14px', height: '14px',
-                border: '2px solid rgba(255,255,255,0.3)',
-                borderTopColor: '#fff',
+                width: '52px', height: '52px',
+                background: 'rgba(123, 94, 167, 0.1)',
+                border: '1px solid rgba(123, 94, 167, 0.2)',
                 borderRadius: '50%',
-                animation: 'spin 0.8s linear infinite',
-                flexShrink: 0,
-              }} />
-            )}
-            {isDone && (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
-            {currentState.label}
-          </button>
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '4px',
+              }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <rect x="5" y="11" width="14" height="11" rx="2" stroke="#9B7EC8" strokeWidth="1.6"/>
+                  <path d="M8 11V7a4 4 0 018 0v4" stroke="#9B7EC8" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: 'Cormorant Garamond, serif',
+                  fontSize: '1.25rem',
+                  fontWeight: 500,
+                  color: C.text,
+                  letterSpacing: '0.03em',
+                  marginBottom: '8px',
+                }}>
+                  Connect your wallet to bid
+                </div>
+                <div style={{
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.58rem',
+                  color: C.textDark,
+                  letterSpacing: '0.06em',
+                  lineHeight: 1.6,
+                  maxWidth: '240px',
+                  margin: '0 auto',
+                }}>
+                  Gavel uses wallet signing to authorize bids — no account required.
+                </div>
+              </div>
+              <button
+                onClick={() => setVisible(true)}
+                style={{
+                  marginTop: '8px',
+                  padding: '13px 32px',
+                  background: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '9px',
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.68rem',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 32px rgba(123, 94, 167, 0.35)',
+                  display: 'flex', alignItems: 'center', gap: '9px',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                  <rect x="5" y="11" width="14" height="11" rx="2" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8"/>
+                  <path d="M8 11V7a4 4 0 018 0v4" stroke="rgba(255,255,255,0.8)" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+                Connect Wallet
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Auction type toggle */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.55rem',
+                  letterSpacing: '0.2em',
+                  color: C.textDark,
+                  textTransform: 'uppercase',
+                  marginBottom: '10px',
+                }}>
+                  Auction Type
+                </div>
 
-          {/* Arcium badge */}
-          <div style={{
-            marginTop: '16px',
-            textAlign: 'center',
-            fontFamily: 'DM Mono, monospace',
-            fontSize: '0.55rem',
-            color: C.textDark,
-            letterSpacing: '0.1em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-          }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L3 7V12C3 16.55 6.84 20.74 12 22C17.16 20.74 21 16.55 21 12V7L12 2Z"
-                stroke="#4e4660" strokeWidth="2" strokeLinejoin="round"/>
-            </svg>
-            Secured by Arcium MPC · Sealed until close
-          </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {[
+                    { key: 'first-price', label: 'First-Price' },
+                    { key: 'vickrey',     label: 'Vickrey' },
+                  ].map((t) => (
+                    <button
+                      key={t.key}
+                      style={{
+                        fontFamily: 'DM Mono, monospace',
+                        fontSize: '0.62rem',
+                        letterSpacing: '0.1em',
+                        textTransform: 'uppercase',
+                        padding: '11px 8px',
+                        background: auctionType === t.key
+                          ? 'rgba(123, 94, 167, 0.2)'
+                          : typeHover === t.key
+                            ? 'rgba(123, 94, 167, 0.07)'
+                            : 'rgba(12, 10, 20, 0.6)',
+                        color: auctionType === t.key ? C.purpleLight : C.textMuted,
+                        border: `1px solid ${auctionType === t.key ? C.purple : 'rgba(123, 94, 167, 0.14)'}`,
+                        borderRadius: '7px',
+                        cursor: 'pointer',
+                        transition: 'all 0.22s',
+                      }}
+                      onMouseEnter={() => setTypeHover(t.key)}
+                      onMouseLeave={() => setTypeHover(null)}
+                      onClick={() => setAuctionType(t.key)}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div style={{
+                  marginTop: '10px',
+                  padding: '10px 14px',
+                  background: 'rgba(123, 94, 167, 0.04)',
+                  border: `1px solid rgba(123, 94, 167, 0.1)`,
+                  borderRadius: '7px',
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.58rem',
+                  color: C.textMuted,
+                  lineHeight: 1.65,
+                  letterSpacing: '0.04em',
+                  animation: 'slideDown 0.25s ease',
+                }}>
+                  {TYPE_INFO[auctionType]}
+                </div>
+              </div>
+
+              {/* Bid input */}
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{
+                  display: 'block',
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.55rem',
+                  letterSpacing: '0.2em',
+                  color: C.textDark,
+                  textTransform: 'uppercase',
+                  marginBottom: '10px',
+                }}>
+                  Your Sealed Bid (SOL)
+                </label>
+
+                <div style={{
+                  position: 'relative',
+                  border: `1px solid ${inputBorderColor}`,
+                  borderRadius: '9px',
+                  background: 'rgba(5, 5, 7, 0.8)',
+                  transition: 'border-color 0.22s, box-shadow 0.22s',
+                  boxShadow: inputShadow,
+                }}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={bidValue}
+                    onChange={(e) => setBidValue(e.target.value)}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    disabled={isProcessing || isDone}
+                    style={{
+                      width: '100%',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      fontFamily: 'DM Mono, monospace',
+                      fontSize: '1.5rem',
+                      fontWeight: 400,
+                      color: C.text,
+                      padding: '16px 60px 16px 18px',
+                      letterSpacing: '0.04em',
+                    }}
+                  />
+                  <span style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '1rem',
+                    color: bidError ? '#e07c7c' : bidValid ? '#7ec89c' : C.purple,
+                    letterSpacing: '0.04em',
+                    pointerEvents: 'none',
+                    transition: 'color 0.22s',
+                  }}>
+                    ◎
+                  </span>
+                </div>
+
+                {/* Balance + USD row */}
+                <div style={{
+                  marginTop: '7px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.57rem',
+                    letterSpacing: '0.08em',
+                    color: C.textDark,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                  }}>
+                    {balanceLoading ? (
+                      <>
+                        <div style={{
+                          width: '8px', height: '8px',
+                          border: '1.5px solid rgba(78, 70, 96, 0.4)',
+                          borderTopColor: C.textDark,
+                          borderRadius: '50%',
+                          animation: 'spin 0.8s linear infinite',
+                        }} />
+                        Fetching balance...
+                      </>
+                    ) : walletBalance !== null ? (
+                      <>
+                        <span>Available:</span>
+                        <span style={{ color: overBalance ? '#e07c7c' : C.textMuted }}>
+                          ◎{walletBalance.toFixed(3)}
+                        </span>
+                      </>
+                    ) : null}
+                  </div>
+                  {usdValue && !bidError && (
+                    <div style={{
+                      fontFamily: 'DM Mono, monospace',
+                      fontSize: '0.57rem',
+                      color: C.textDark,
+                      letterSpacing: '0.08em',
+                    }}>
+                      ≈ {usdValue} USD
+                    </div>
+                  )}
+                </div>
+
+                {/* Validation error */}
+                {bidError && (
+                  <div style={{
+                    marginTop: '6px',
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.57rem',
+                    color: '#e07c7c',
+                    letterSpacing: '0.04em',
+                    lineHeight: 1.5,
+                    animation: 'fadeIn 0.18s ease',
+                  }}>
+                    {bidError}
+                  </div>
+                )}
+
+                {/* Min bid hint when no value entered */}
+                {!bidValue && minBid > 0 && (
+                  <div style={{
+                    marginTop: '6px',
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.55rem',
+                    color: C.textDark,
+                    letterSpacing: '0.06em',
+                  }}>
+                    Minimum bid: ◎{minBid}
+                  </div>
+                )}
+              </div>
+
+              {/* Privacy notice */}
+              <div style={{
+                padding: '12px 14px',
+                background: 'rgba(123, 94, 167, 0.05)',
+                border: `1px solid rgba(123, 94, 167, 0.12)`,
+                borderRadius: '8px',
+                marginBottom: '20px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'flex-start',
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: '1px' }}>
+                  <rect x="5" y="11" width="14" height="11" rx="2" stroke="#7B5EA7" strokeWidth="1.8"/>
+                  <path d="M8 11V7a4 4 0 018 0v4" stroke="#7B5EA7" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+                <div>
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.58rem',
+                    color: C.purple,
+                    letterSpacing: '0.1em',
+                    marginBottom: '3px',
+                  }}>
+                    End-to-end encrypted
+                  </div>
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.55rem',
+                    color: C.textDark,
+                    lineHeight: 1.6,
+                    letterSpacing: '0.04em',
+                  }}>
+                    Your bid is encrypted locally before transmission. Not even Gavel can see it.
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <button
+                onClick={handleSubmit}
+                disabled={!bidValid || isProcessing || isDone}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  background: !bidValid
+                    ? 'rgba(123, 94, 167, 0.15)'
+                    : currentState.bg,
+                  color: !bidValid ? C.textDark : '#fff',
+                  border: 'none',
+                  borderRadius: '9px',
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.72rem',
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  cursor: (!bidValid || isProcessing || isDone) ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.35s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  boxShadow: (bidValid && !isProcessing && !isDone)
+                    ? '0 8px 32px rgba(123, 94, 167, 0.35)'
+                    : 'none',
+                }}
+              >
+                {(submitIdx === 1 || submitIdx === 2 || submitIdx === 3) && (
+                  <div style={{
+                    width: '14px', height: '14px',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderTopColor: '#fff',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    flexShrink: 0,
+                  }} />
+                )}
+                {isDone && (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 13l4 4L19 7" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+                {currentState.label}
+              </button>
+
+              {/* ── Bid sealed confirmation ─────────────── */}
+              {showConfirm && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '18px',
+                  background: 'rgba(126, 200, 156, 0.04)',
+                  border: '1px solid rgba(126, 200, 156, 0.18)',
+                  borderRadius: '10px',
+                  animation: 'fadeIn 0.4s ease both',
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    marginBottom: '14px',
+                  }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="9" stroke="#7ec89c" strokeWidth="1.8"/>
+                      <path d="M8 12l3 3 5-5" stroke="#7ec89c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span style={{
+                      fontFamily: 'DM Mono, monospace',
+                      fontSize: '0.6rem',
+                      color: '#7ec89c',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                    }}>
+                      Bid Sealed Successfully
+                    </span>
+                  </div>
+
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.55rem',
+                    color: C.textDark,
+                    lineHeight: 1.65,
+                    letterSpacing: '0.04em',
+                    marginBottom: '14px',
+                  }}>
+                    Your encrypted bid has been submitted to Arcium's MPC network for private comparison. No party — including Gavel — can read your bid until the auction closes.
+                  </div>
+
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.52rem',
+                    color: C.textDark,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>
+                    Encrypted Commitment
+                  </div>
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.56rem',
+                    color: C.textMuted,
+                    letterSpacing: '0.04em',
+                    wordBreak: 'break-all',
+                    lineHeight: 1.55,
+                    background: 'rgba(5, 5, 7, 0.6)',
+                    border: '1px solid rgba(123, 94, 167, 0.12)',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
+                    marginBottom: '10px',
+                  }}>
+                    {bidHash}
+                  </div>
+
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.52rem',
+                    color: C.textDark,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: '4px',
+                  }}>
+                    Authorization Proof
+                  </div>
+                  <div style={{
+                    fontFamily: 'DM Mono, monospace',
+                    fontSize: '0.56rem',
+                    color: C.textMuted,
+                    letterSpacing: '0.04em',
+                    background: 'rgba(5, 5, 7, 0.6)',
+                    border: '1px solid rgba(123, 94, 167, 0.12)',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
+                    marginBottom: '14px',
+                  }}>
+                    {bidSignature}
+                  </div>
+
+                  <button
+                    onClick={handleContinue}
+                    onMouseEnter={() => setContinueHover(true)}
+                    onMouseLeave={() => setContinueHover(false)}
+                    style={{
+                      width: '100%',
+                      fontFamily: 'DM Mono, monospace',
+                      fontSize: '0.6rem',
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      padding: '11px 12px',
+                      background: continueHover
+                        ? 'linear-gradient(135deg, #9B7EC8, #7B5EA7)'
+                        : 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '7px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      boxShadow: continueHover ? '0 6px 20px rgba(123, 94, 167, 0.4)' : 'none',
+                    }}
+                  >
+                    View Auction →
+                  </button>
+                </div>
+              )}
+
+              {/* Arcium badge */}
+              {!showConfirm && (
+                <div style={{
+                  marginTop: '16px',
+                  textAlign: 'center',
+                  fontFamily: 'DM Mono, monospace',
+                  fontSize: '0.55rem',
+                  color: C.textDark,
+                  letterSpacing: '0.1em',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px',
+                }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L3 7V12C3 16.55 6.84 20.74 12 22C17.16 20.74 21 16.55 21 12V7L12 2Z"
+                      stroke="#4e4660" strokeWidth="2" strokeLinejoin="round"/>
+                  </svg>
+                  Secured by Arcium MPC · Sealed until close
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
+
+    {showNotifModal && auction && (
+      <NotifPrefsModal auction={auction} onClose={() => setShowNotifModal(false)} />
+    )}
+    </>
   );
 }

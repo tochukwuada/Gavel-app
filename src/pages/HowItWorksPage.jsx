@@ -247,10 +247,43 @@ function StepCard({ step, index }) {
 export default function HowItWorksPage() {
   const navigate = useNavigate();
   const [ctaHover, setCtaHover] = useState(false);
+  const [backHover, setBackHover] = useState(false);
   const isMobile = useIsMobile();
 
   return (
     <div style={{ background: C.bg, minHeight: '100vh', paddingTop: '64px' }}>
+
+      {/* ── Back button ───────────────────────────────────── */}
+      <div style={{
+        padding: isMobile ? '20px 20px 0' : '24px 60px 0',
+        maxWidth: '1320px',
+        margin: '0 auto',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}>
+        <button
+          onClick={() => navigate('/')}
+          onMouseEnter={() => setBackHover(true)}
+          onMouseLeave={() => setBackHover(false)}
+          style={{
+            fontFamily: 'DM Mono, monospace',
+            fontSize: '0.6rem',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: backHover ? C.textMuted : C.textDark,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            transition: 'color 0.2s',
+          }}
+        >
+          ← Back to Auctions
+        </button>
+      </div>
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <section style={{
@@ -603,33 +636,6 @@ export default function HowItWorksPage() {
         </div>
       </section>
 
-      {/* footer */}
-      <footer style={{
-        borderTop: `1px solid rgba(123, 94, 167, 0.1)`,
-        padding: '36px 60px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '12px',
-      }}>
-        <span style={{
-          fontFamily: 'Cormorant Garamond, serif',
-          fontSize: '1.1rem',
-          fontWeight: 600,
-          color: C.textDark,
-          letterSpacing: '0.2em',
-          textTransform: 'uppercase',
-        }}>Gavel</span>
-        <span style={{
-          fontFamily: 'DM Mono, monospace',
-          fontSize: '0.56rem',
-          color: C.textDark,
-          letterSpacing: '0.1em',
-        }}>
-          Privacy by cryptography · Arcium MPC · Zero leakage
-        </span>
-      </footer>
     </div>
   );
 }

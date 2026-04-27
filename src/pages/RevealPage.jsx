@@ -157,7 +157,7 @@ function WinnerCard({ bidAmount, auctionType, auction }) {
         letterSpacing: '0.08em',
         marginBottom: '22px',
       }}>
-        0xDEAD...c0DE
+        GavL...3K8m
       </div>
 
       <div style={{
@@ -184,7 +184,7 @@ function WinnerCard({ bidAmount, auctionType, auction }) {
           fontWeight: 600,
           color: C.text,
         }}>
-          {settlement.toFixed(3)} ETH
+          ◎{settlement.toFixed(3)}
         </div>
         {savings !== null && (
           <div style={{
@@ -194,7 +194,7 @@ function WinnerCard({ bidAmount, auctionType, auction }) {
             letterSpacing: '0.1em',
             marginTop: '4px',
           }}>
-            Saved {savings.toFixed(3)} ETH via Vickrey mechanism
+            Saved ◎{savings.toFixed(3)} via Vickrey mechanism
           </div>
         )}
       </div>
@@ -263,7 +263,7 @@ export default function RevealPage() {
     },
     {
       label: 'Settlement',
-      value: `${settlement.toFixed(3)} ETH`,
+      value: `◎${settlement.toFixed(3)}`,
       sub: 'On-chain via Arcium MPC',
       highlight: true,
     },
