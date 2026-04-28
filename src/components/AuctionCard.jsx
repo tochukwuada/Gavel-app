@@ -68,6 +68,141 @@ const VISUALS = {
   purple:  { a: '#0c0a14', b: '#2a1f40', c: '#7B5EA7', accent: 'rgba(123,94,167,0.3)' },
 };
 
+// Unique geometric SVG pattern per visual theme
+function GeometricPattern({ visual, v }) {
+  const id = `rg-${visual}`;
+  switch (visual) {
+    case 'gold': return (
+      // Hexagonal grid — Patek Philippe
+      <g>
+        <defs><radialGradient id={id} cx="75%" cy="25%" r="55%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.4"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        {[0,1,2,3,4].map(row => [0,1,2,3,4].map(col => {
+          const ox = col * 44 + (row % 2) * 22 - 10;
+          const oy = row * 26 - 6;
+          const r = 14;
+          const pts = [0,1,2,3,4,5].map(i => {
+            const a = Math.PI / 180 * (60 * i - 30);
+            return `${ox + r * Math.cos(a)},${oy + r * Math.sin(a)}`;
+          }).join(' ');
+          return <polygon key={`${row}-${col}`} points={pts} fill="none"
+            stroke={v.c} strokeWidth="0.5" strokeOpacity="0.22"/>;
+        }))}
+        <circle cx="190" cy="18" r="38" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+    case 'crimson': return (
+      // Diagonal crosshatch — Banksy
+      <g>
+        <defs><radialGradient id={id} cx="30%" cy="70%" r="60%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.35"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        {[...Array(10)].map((_, i) => (
+          <line key={`d${i}`} x1={i * 28 - 40} y1="0" x2={i * 28 + 80} y2="120"
+            stroke={v.c} strokeWidth="0.6" strokeOpacity="0.18"/>
+        ))}
+        {[...Array(8)].map((_, i) => (
+          <line key={`u${i}`} x1={i * 32} y1="120" x2={i * 32 + 120} y2="0"
+            stroke={v.c} strokeWidth="0.6" strokeOpacity="0.12"/>
+        ))}
+        <circle cx="40" cy="30" r="36" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+    case 'cobalt': return (
+      // Concentric arcs — Mickey Mantle / baseball
+      <g>
+        <defs><radialGradient id={id} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        {[20,40,60,80,100,120].map(r => (
+          <circle key={r} cx="200" cy="10" r={r} fill="none"
+            stroke={v.c} strokeWidth="0.5" strokeOpacity="0.2"/>
+        ))}
+        {[20,40,60,80].map(r => (
+          <circle key={`l${r}`} cx="30" cy="110" r={r} fill="none"
+            stroke={v.c} strokeWidth="0.5" strokeOpacity="0.14"/>
+        ))}
+        <circle cx="170" cy="35" r="30" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+    case 'burgundy': return (
+      // Diamond tessellation — Isfahan Rug
+      <g>
+        <defs><radialGradient id={id} cx="60%" cy="40%" r="55%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.38"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        {[0,1,2,3,4,5].map(row => [0,1,2,3,4,5,6].map(col => {
+          const cx2 = col * 36 + (row % 2) * 18 - 8;
+          const cy2 = row * 22 - 4;
+          return <polygon key={`${row}-${col}`}
+            points={`${cx2},${cy2 - 11} ${cx2 + 18},${cy2} ${cx2},${cy2 + 11} ${cx2 - 18},${cy2}`}
+            fill="none" stroke={v.c} strokeWidth="0.5" strokeOpacity="0.22"/>;
+        }))}
+        <circle cx="60" cy="25" r="32" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+    case 'amber': return (
+      // Wave / ripple curves — Macallan whisky
+      <g>
+        <defs><radialGradient id={id} cx="50%" cy="60%" r="60%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.35"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        {[0,1,2,3,4,5,6].map(i => (
+          <path key={i}
+            d={`M -20 ${i * 20} Q 60 ${i * 20 - 14} 120 ${i * 20} Q 180 ${i * 20 + 14} 260 ${i * 20}`}
+            fill="none" stroke={v.c} strokeWidth="0.6" strokeOpacity="0.2"/>
+        ))}
+        <circle cx="185" cy="25" r="42" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+        <circle cx="30" cy="95" r="28" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+    case 'ice': return (
+      // Crystal facets — De Beers diamond
+      <g>
+        <defs><radialGradient id={id} cx="50%" cy="35%" r="50%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.45"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        {/* gem facets radiating from center */}
+        {[0,30,60,90,120,150,180,210,240,270,300,330].map(deg => {
+          const rad = deg * Math.PI / 180;
+          return <line key={deg} x1="120" y1="60"
+            x2={120 + 100 * Math.cos(rad)} y2={60 + 70 * Math.sin(rad)}
+            stroke={v.c} strokeWidth="0.5" strokeOpacity="0.22"/>;
+        })}
+        {[25,50,75].map(r => (
+          <ellipse key={r} cx="120" cy="60" rx={r * 2} ry={r}
+            fill="none" stroke={v.c} strokeWidth="0.45" strokeOpacity="0.18"/>
+        ))}
+        <circle cx="120" cy="60" r="22" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+    default: return (
+      <g>
+        <defs><radialGradient id={id} cx="70%" cy="30%" r="60%">
+          <stop offset="0%" stopColor={v.c} stopOpacity="0.35"/>
+          <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
+        </radialGradient></defs>
+        <rect width="240" height="120" fill={`url(#${id})`}/>
+        <circle cx="180" cy="20" r="50" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+        <circle cx="20" cy="100" r="40" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
+      </g>
+    );
+  }
+}
+
 function AuctionVisual({ visual = 'purple', icon }) {
   const v = VISUALS[visual] || VISUALS.purple;
   return (
@@ -77,19 +212,9 @@ function AuctionVisual({ visual = 'purple', icon }) {
       position: 'relative', overflow: 'hidden',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
-      {/* abstract pattern */}
-      <svg width="100%" height="100%" viewBox="0 0 240 120" preserveAspectRatio="xMidYMid slice" style={{ position: 'absolute', inset: 0 }}>
-        <defs>
-          <radialGradient id={`rg-${visual}`} cx="70%" cy="30%" r="60%">
-            <stop offset="0%" stopColor={v.c} stopOpacity="0.35"/>
-            <stop offset="100%" stopColor={v.a} stopOpacity="0"/>
-          </radialGradient>
-        </defs>
-        <rect width="240" height="120" fill={`url(#rg-${visual})`}/>
-        <circle cx="180" cy="20" r="50" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
-        <circle cx="20" cy="100" r="40" fill={v.accent} style={{ mixBlendMode: 'screen' }}/>
-        <line x1="0" y1="60" x2="240" y2="60" stroke={v.c} strokeWidth="0.4" strokeOpacity="0.18"/>
-        <line x1="120" y1="0" x2="120" y2="120" stroke={v.c} strokeWidth="0.4" strokeOpacity="0.18"/>
+      <svg width="100%" height="100%" viewBox="0 0 240 120" preserveAspectRatio="xMidYMid slice"
+        style={{ position: 'absolute', inset: 0 }}>
+        <GeometricPattern visual={visual} v={v} />
       </svg>
       <span style={{ fontSize: '2.6rem', position: 'relative', zIndex: 1, filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.5))' }}>
         {icon}

@@ -212,7 +212,15 @@ export default function BiddingPage() {
   const { connected, publicKey } = useWallet();
   const { setVisible } = useWalletModal();
   const { submitBid } = useArciumBid();
-  const { recordBid, extendAuction, getExtra } = useAuctionState(Number(id));
+  const { recordBid, extendAuction, getExtra } = useAuctionState(Number(id), {
+    onExternalBid: () => {
+      if (hasBidRef.current) {
+        showToast('Outbid', 'outbid', `🔴 You've been outbid on "${auction?.name}"! Place a higher bid.`, 6000);
+      } else {
+        showToast('New Bid', 'info', 'A new sealed bid was placed.', 4000);
+      }
+    },
+  });
   const isMobile = useIsMobile();
   const auction = getAuction(id);
 
@@ -315,7 +323,7 @@ export default function BiddingPage() {
         if (getTimeLeft(auction) > 0) {
           recordBid();
           if (hasBidRef.current) {
-            showToast('Outbid', 'outbid', `You've been outbid on "${auction.name}". Place a higher bid.`, 6000);
+            showToast('Outbid', 'outbid', `🔴 You've been outbid on "${auction.name}"! Place a higher bid.`, 6000);
           } else {
             showToast('New Bid', 'info', `A new sealed bid was placed on "${auction.name}".`, 4000);
           }
@@ -397,7 +405,12 @@ export default function BiddingPage() {
         setSubmitIdx(0);
         const msg = err?.message ?? String(err);
         const cancelled = msg.toLowerCase().includes('user rejected') || msg.toLowerCase().includes('cancelled');
-        showToast(cancelled ? 'Bid cancelled' : 'Submission failed', cancelled ? 'warning' : 'error', cancelled ? 'Wallet signing was rejected.' : msg.slice(0, 120), 5000);
+        showToast(
+          cancelled ? 'Bid cancelled' : 'Connection Error',
+          cancelled ? 'warning' : 'error',
+          cancelled ? 'Wallet signing was rejected.' : 'Connection issue. Please check your wallet and try again.',
+          5000,
+        );
       }
     } else {
       // Demo path: real encryption, simulated on-chain submission
@@ -426,7 +439,7 @@ export default function BiddingPage() {
         }
       } catch (err) {
         setSubmitIdx(0);
-        showToast('Network Error', 'error', 'Failed to submit bid. Please check your connection and try again.', 5000);
+        showToast('Connection Error', 'error', 'Connection issue. Please check your wallet and try again.', 5000);
       }
     }
   };

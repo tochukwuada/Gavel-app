@@ -16,14 +16,21 @@ function writeAll(s) {
 const subscribers = new Set();
 function notifyLocal() { subscribers.forEach(fn => fn()); }
 
-export function useAuctionState(auctionId) {
+export function useAuctionState(auctionId, { onExternalBid } = {}) {
   const [state, setState] = useState(readAll);
   const channelRef = useRef(null);
+  const onExternalBidRef = useRef(onExternalBid);
+  onExternalBidRef.current = onExternalBid;
 
   useEffect(() => {
     // Cross-tab sync
     channelRef.current = new BroadcastChannel(CHANNEL_NAME);
-    channelRef.current.onmessage = () => setState(readAll());
+    channelRef.current.onmessage = (e) => {
+      setState(readAll());
+      if (e.data?.type === 'bid' && e.data?.auctionId === auctionId) {
+        onExternalBidRef.current?.({ auctionId: e.data.auctionId });
+      }
+    };
 
     // Same-tab sync
     const sync = () => setState(readAll());
@@ -33,15 +40,15 @@ export function useAuctionState(auctionId) {
       channelRef.current?.close();
       subscribers.delete(sync);
     };
-  }, []);
+  }, [auctionId]);
 
-  const broadcast = useCallback(() => {
+  const broadcast = useCallback((id = auctionId) => {
     try {
       const ch = new BroadcastChannel(CHANNEL_NAME);
-      ch.postMessage({ type: 'update' });
+      ch.postMessage({ type: 'bid', auctionId: id });
       ch.close();
     } catch {}
-  }, []);
+  }, [auctionId]);
 
   const recordBid = useCallback((id = auctionId) => {
     const all = readAll();
@@ -51,7 +58,7 @@ export function useAuctionState(auctionId) {
     writeAll(all);
     setState({ ...all });
     notifyLocal();
-    broadcast();
+    broadcast(id);
   }, [auctionId, broadcast]);
 
   const extendAuction = useCallback((id = auctionId, ms = 5 * 60 * 1000) => {
@@ -62,7 +69,7 @@ export function useAuctionState(auctionId) {
     writeAll(all);
     setState({ ...all });
     notifyLocal();
-    broadcast();
+    broadcast(id);
   }, [auctionId, broadcast]);
 
   const getExtra = useCallback((id = auctionId) => {
