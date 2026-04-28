@@ -10,7 +10,9 @@ import {
 import { AnchorProvider, BN } from '@coral-xyz/anchor';
 import { sha256 } from '@noble/hashes/sha2';
 
-const PROGRAM_ID = new PublicKey('CHFR2eD8dmZ5NM7UbwM7nWFVTfWPpdtKfv6H4Bgtha3e');
+const PROGRAM_ID = new PublicKey(
+  import.meta.env.VITE_PROGRAM_ID || 'JCy9xb86u24Be4M1qeMGUobZ8NCGJrP92qetqYVRu1RF',
+);
 const ARCIUM_PROGRAM_ID = new PublicKey('Arcj82pX7HxYKLR92qvgZUAd7vGS1k4hQvAFcPATFdEQ');
 
 // SHA256("global:place_bid")[:8]

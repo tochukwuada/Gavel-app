@@ -6,6 +6,7 @@ export const AUCTIONS = [
     id: 1,
     name: 'Vintage Patek Philippe Ref. 1518',
     category: 'Horology',
+    auctionPubkey: '3vhCBvTCRvmf3knVE8riFKcGhr3NKVEui8VSAisVRaiy',
     condition: 'Excellent',
     sellerWallet: '7xKXnB3mQ8mTpP4hV2fRc9aL5sD1eW6yZ8uE3jF7gHk',
     visual: 'gold',

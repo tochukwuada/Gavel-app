@@ -8,6 +8,8 @@ export default defineConfig({
     'process.env': '{}',
     'process.browser': 'true',
     'Buffer': ['buffer', 'Buffer'],
+    'import.meta.env.VITE_PROGRAM_ID': JSON.stringify('JCy9xb86u24Be4M1qeMGUobZ8NCGJrP92qetqYVRu1RF'),
+    'import.meta.env.VITE_CLUSTER': JSON.stringify('devnet'),
   },
   resolve: {
     alias: {
