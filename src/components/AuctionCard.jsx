@@ -532,10 +532,26 @@ export default function AuctionCard({ auction }) {
         <h3 style={{
           fontFamily: 'Cormorant Garamond, serif',
           fontSize: '1.35rem', fontWeight: 600,
-          color: C.text, lineHeight: 1.25, marginBottom: '6px', letterSpacing: '0.01em',
+          color: C.text, lineHeight: 1.25, marginBottom: '8px', letterSpacing: '0.01em',
         }}>
           {auction.name}
         </h3>
+
+        {/* condition badge */}
+        {auction.condition && (
+          <span style={{
+            display: 'inline-block',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.5rem',
+            letterSpacing: '0.15em', textTransform: 'uppercase',
+            color: C.textDark,
+            background: 'rgba(78, 70, 96, 0.18)',
+            border: '1px solid rgba(78, 70, 96, 0.28)',
+            padding: '3px 9px', borderRadius: '12px',
+            marginBottom: '8px',
+          }}>
+            {auction.condition}
+          </span>
+        )}
 
         <p style={{
           fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',

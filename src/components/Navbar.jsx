@@ -525,6 +525,7 @@ export default function Navbar() {
   const { setVisible } = useWalletModal();
   const [hovered, setHovered] = useState(false);
   const [createHover, setCreateHover] = useState(false);
+  const [aboutHover, setAboutHover] = useState(false);
   const [watchHover, setWatchHover] = useState(false);
   const [bellHover, setBellHover] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -609,6 +610,26 @@ export default function Navbar() {
 
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {/* About */}
+          {!isMobile && (
+            <button
+              onClick={() => navigate('/about')}
+              onMouseEnter={() => setAboutHover(true)}
+              onMouseLeave={() => setAboutHover(false)}
+              style={{
+                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                letterSpacing: '0.14em', textTransform: 'uppercase',
+                padding: '8px 14px', borderRadius: '5px', cursor: 'pointer',
+                background: 'transparent',
+                color: aboutHover ? C.purpleLight : C.textMuted,
+                border: `1px solid ${aboutHover ? 'rgba(155, 126, 200, 0.25)' : 'transparent'}`,
+                transition: 'all 0.25s',
+              }}
+            >
+              About
+            </button>
+          )}
+
           {/* Watchlist with count badge */}
           {!isMobile && (
             <button

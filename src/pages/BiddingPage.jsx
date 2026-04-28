@@ -642,7 +642,7 @@ export default function BiddingPage() {
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
               }}>
-                Auction ends in under 10 minutes
+                {`⚠️ Auction closing in ${Math.max(1, Math.ceil(timeLeft / 60000))} minute${Math.ceil(timeLeft / 60000) === 1 ? '' : 's'}!`}
               </span>
             </div>
           )}
