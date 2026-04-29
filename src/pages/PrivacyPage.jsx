@@ -299,8 +299,15 @@ export default function PrivacyPage() {
             color: C.textDark, lineHeight: 1.7, letterSpacing: '0.04em',
             marginTop: '16px',
           }}>
-            To exercise any of these rights, email{' '}
-            <span style={{ color: C.purpleLight }}>privacy@gavel.gg</span>.
+            To exercise any of these rights, open an issue on GitHub:{' '}
+            <a
+              href="https://github.com/tochukwuada/Gavel-app/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: C.purpleLight, textDecoration: 'none' }}
+            >
+              github.com/tochukwuada/Gavel-app/issues
+            </a>.
             We will respond within 30 days.
           </p>
         </PrivacySection>
@@ -323,9 +330,8 @@ export default function PrivacyPage() {
           gap: '14px',
         }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
-              stroke="#9B7EC8" strokeWidth="1.8"/>
-            <polyline points="22,6 12,13 2,6" stroke="#9B7EC8" strokeWidth="1.8"/>
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"
+              stroke="#9B7EC8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div>
             <div style={{
@@ -333,14 +339,21 @@ export default function PrivacyPage() {
               color: C.textDark, letterSpacing: '0.2em',
               textTransform: 'uppercase', marginBottom: '5px',
             }}>
-              Privacy Contact
+              Support
             </div>
             <p style={{
               fontFamily: 'DM Mono, monospace', fontSize: '0.62rem',
               color: C.textMuted, lineHeight: 1.65, letterSpacing: '0.04em',
             }}>
-              For privacy inquiries or data requests:{' '}
-              <span style={{ color: C.purpleLight }}>privacy@gavel.gg</span>
+              For support, open an issue on GitHub:{' '}
+              <a
+                href="https://github.com/tochukwuada/Gavel-app/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: C.purpleLight, textDecoration: 'none' }}
+              >
+                github.com/tochukwuada/Gavel-app/issues
+              </a>
             </p>
           </div>
         </div>

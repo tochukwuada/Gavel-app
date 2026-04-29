@@ -52,7 +52,7 @@ const FAQS = [
   },
   {
     q: 'How do I contact support?',
-    a: "Email support@gavel.gg with your wallet address and auction ID. Our team responds within 1–2 business days. For urgent issues around active auction settlement, use the subject line \"URGENT: [Auction ID]\" to prioritize your request. For data or privacy inquiries, use privacy@gavel.gg instead.",
+    a: "Open an issue on GitHub at github.com/tochukwuada/Gavel-app/issues with your wallet address and auction ID. For urgent issues around active auction settlement, include \"URGENT: [Auction ID]\" in the issue title.",
   },
 ];
 
@@ -186,7 +186,14 @@ export default function FAQPage() {
             color: C.textDark, letterSpacing: '0.08em', lineHeight: 1.65,
           }}>
             {FAQS.length} questions answered. Can't find what you're looking for?{' '}
-            <span style={{ color: C.purple }}>support@gavel.gg</span>
+            <a
+              href="https://github.com/tochukwuada/Gavel-app/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: C.purple, textDecoration: 'none' }}
+            >
+              Open an issue on GitHub.
+            </a>
           </p>
         </div>
 
@@ -234,11 +241,13 @@ export default function FAQPage() {
               fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
               color: C.textDark, letterSpacing: '0.06em',
             }}>
-              Our team responds within 1–2 business days.
+              For support, open an issue on GitHub.
             </p>
           </div>
           <a
-            href="mailto:support@gavel.gg"
+            href="https://github.com/tochukwuada/Gavel-app/issues"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               fontFamily: 'DM Mono, monospace',
               fontSize: '0.62rem',
@@ -255,7 +264,7 @@ export default function FAQPage() {
               flexShrink: 0,
             }}
           >
-            Email Support →
+            Open an Issue →
           </a>
         </div>
 

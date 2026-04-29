@@ -8,13 +8,6 @@ const C = {
   textMuted: '#9589aa', textDark: '#4e4660',
 };
 
-const TEAM = [
-  { role: 'Cryptography', desc: 'Zero-knowledge bid encryption via Arcium MPC on Solana.' },
-  { role: 'Mechanism Design', desc: 'Vickrey and first-price sealed-bid auction theory.' },
-  { role: 'Protocol Engineering', desc: 'On-chain settlement, computation finalization, and dispute resolution.' },
-  { role: 'Product', desc: 'Auction UX, trust & safety, seller and bidder tooling.' },
-];
-
 const TECH = [
   { label: 'Arcium MPC', body: "Bids are encrypted client-side and processed by Arcium's multi-party computation network — no single party, including Gavel, can reconstruct individual bid amounts." },
   { label: 'Solana', body: 'All settlements are on-chain. Auction creation, bid commitment, and winner declaration are anchored to Solana for immutability and auditability.' },
@@ -139,7 +132,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        {/* Team */}
+        {/* About Gavel */}
         <div style={{ marginBottom: '56px' }}>
           <div style={{
             fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
@@ -147,46 +140,31 @@ export default function AboutPage() {
             color: C.textDark, marginBottom: '20px', paddingBottom: '14px',
             borderBottom: `1px solid rgba(123, 94, 167, 0.08)`,
           }}>
-            The Team
+            About Gavel
           </div>
-          <p style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.63rem',
-            color: C.textMuted, lineHeight: 1.8, letterSpacing: '0.04em',
-            marginBottom: '24px',
-          }}>
-            Built by the Gavel team — a group of engineers, cryptographers, and mechanism designers
-            focused on making sealed-bid auctions practical and trustless.
-          </p>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-            gap: '12px',
-          }}>
-            {TEAM.map(t => (
-              <div key={t.role} style={{
-                padding: '16px 18px',
-                background: C.card, border: `1px solid ${C.border}`,
-                borderRadius: '9px',
-              }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {[
+              'Gavel is an open-source sealed-bid auction protocol built on Arcium\'s MPC network and Solana.',
+              'Built for the Arcium hackathon.',
+              'Powered by Arcium\'s Multi-Party Computation.',
+            ].map((line, i) => (
+              <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
                 <div style={{
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.57rem',
-                  color: C.purpleLight, letterSpacing: '0.1em',
-                  textTransform: 'uppercase', marginBottom: '7px',
-                }}>
-                  {t.role}
-                </div>
+                  width: '5px', height: '5px', borderRadius: '50%',
+                  background: C.purple, flexShrink: 0, marginTop: '8px',
+                }} />
                 <p style={{
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
-                  color: C.textMuted, lineHeight: 1.65, letterSpacing: '0.04em',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.63rem',
+                  color: C.textMuted, lineHeight: 1.7, letterSpacing: '0.04em',
                 }}>
-                  {t.desc}
+                  {line}
                 </p>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Contact */}
+        {/* Support */}
         <div style={{
           padding: '24px 26px',
           background: C.card, border: `1px solid ${C.border}`,
@@ -199,17 +177,19 @@ export default function AboutPage() {
               fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem',
               fontWeight: 600, color: C.text, marginBottom: '5px',
             }}>
-              Get in touch
+              Source & Support
             </div>
             <p style={{
               fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
               color: C.textDark, letterSpacing: '0.06em',
             }}>
-              Questions, partnerships, or press enquiries.
+              For support, open an issue on GitHub.
             </p>
           </div>
           <a
-            href="mailto:support@gavel.gg"
+            href="https://github.com/tochukwuada/Gavel-app"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               fontFamily: 'DM Mono, monospace', fontSize: '0.62rem',
               letterSpacing: '0.12em', textTransform: 'uppercase',
@@ -220,7 +200,7 @@ export default function AboutPage() {
               display: 'inline-block', flexShrink: 0,
             }}
           >
-            support@gavel.gg →
+            GitHub →
           </a>
         </div>
 

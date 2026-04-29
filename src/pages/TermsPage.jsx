@@ -277,9 +277,15 @@ export default function TermsPage() {
             fontFamily: 'DM Mono, monospace', fontSize: '0.62rem',
             color: C.textMuted, lineHeight: 1.7, letterSpacing: '0.04em',
           }}>
-            Contact us at{' '}
-            <span style={{ color: C.purpleLight }}>support@gavel.gg</span>
-            {' '}and we will respond within 5 business days.
+            For support, open an issue on GitHub:{' '}
+            <a
+              href="https://github.com/tochukwuada/Gavel-app/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: C.purpleLight, textDecoration: 'none' }}
+            >
+              github.com/tochukwuada/Gavel-app/issues
+            </a>
           </p>
         </div>
 
