@@ -149,7 +149,7 @@ export default function FAQPage() {
         <button
           onClick={() => navigate('/')}
           style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             letterSpacing: '0.14em', color: C.textDark,
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '6px',
@@ -164,7 +164,7 @@ export default function FAQPage() {
         {/* Hero */}
         <div style={{ marginBottom: '60px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.3em', color: C.purple,
             textTransform: 'uppercase', marginBottom: '14px',
           }}>
@@ -238,7 +238,7 @@ export default function FAQPage() {
               Still need help?
             </div>
             <p style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               color: C.textDark, letterSpacing: '0.06em',
             }}>
               For support, open an issue on GitHub.

@@ -130,7 +130,7 @@ function WinnerCard({ bidAmount, auctionType, auction }) {
 
       <div style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.55rem',
+        fontSize: '0.7rem',
         letterSpacing: '0.32em',
         color: C.purple,
         textTransform: 'uppercase',
@@ -190,7 +190,7 @@ function WinnerCard({ bidAmount, auctionType, auction }) {
         {savings !== null && (
           <div style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.55rem',
+            fontSize: '0.7rem',
             color: '#7ec89c',
             letterSpacing: '0.1em',
             marginTop: '4px',
@@ -291,7 +291,7 @@ export default function RevealPage() {
             onClick={() => navigate('/')}
             style={{
               fontFamily: 'DM Mono, monospace',
-              fontSize: '0.6rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.14em',
               color: backHover ? C.textMuted : C.textDark,
               background: 'none', border: 'none', cursor: 'pointer', padding: 0,
@@ -466,7 +466,7 @@ export default function RevealPage() {
               onMouseLeave={() => setBtnHover(false)}
               style={{
                 fontFamily: 'DM Mono, monospace',
-                fontSize: '0.6rem',
+                fontSize: '0.75rem',
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 padding: '10px 28px',
@@ -562,7 +562,7 @@ export default function RevealPage() {
             <div>
               <div style={{
                 fontFamily: 'DM Mono, monospace',
-                fontSize: '0.6rem',
+                fontSize: '0.75rem',
                 color: C.purpleLight,
                 letterSpacing: '0.1em',
                 marginBottom: '4px',
@@ -602,7 +602,7 @@ export default function RevealPage() {
           animation: 'fadeInUp 0.35s ease both',
         }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.28em', color: C.purple,
             textTransform: 'uppercase', marginBottom: '10px',
           }}>

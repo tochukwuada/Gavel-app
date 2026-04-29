@@ -66,7 +66,7 @@ function CountdownTimer({ auction, extensionMs = 0 }) {
     }}>
       <div style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.55rem',
+        fontSize: '0.7rem',
         letterSpacing: '0.28em',
         color: C.textDark,
         textTransform: 'uppercase',
@@ -124,7 +124,7 @@ function CountdownTimer({ auction, extensionMs = 0 }) {
         <div style={{
           marginTop: '16px',
           fontFamily: 'DM Mono, monospace',
-          fontSize: '0.6rem',
+          fontSize: '0.75rem',
           color: '#e07c7c',
           letterSpacing: '0.12em',
           animation: 'pulse 1.5s infinite',
@@ -165,7 +165,7 @@ function EncryptedRow({ bid, index }) {
       {/* Sealed badge — no currency or amount shown */}
       <span style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.55rem',
+        fontSize: '0.7rem',
         color: C.textDark,
         letterSpacing: '0.1em',
         background: 'rgba(123, 94, 167, 0.06)',
@@ -186,7 +186,7 @@ function EncryptedRow({ bid, index }) {
 
       <span style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.55rem',
+        fontSize: '0.7rem',
         color: C.textDark,
         letterSpacing: '0.06em',
         minWidth: '60px',
@@ -488,7 +488,7 @@ export default function BiddingPage() {
           onClick={() => navigate('/')}
           style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.6rem',
+            fontSize: '0.75rem',
             letterSpacing: '0.14em',
             color: C.textDark,
             background: 'none',
@@ -575,7 +575,7 @@ export default function BiddingPage() {
                     strokeWidth="1.5" strokeLinejoin="round"/>
                 </svg>
                 <span style={{
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                   letterSpacing: '0.12em', textTransform: 'uppercase',
                   color: watched ? C.purpleLight : C.textMuted,
                   transition: 'color 0.2s',
@@ -587,7 +587,7 @@ export default function BiddingPage() {
 
             <p style={{
               fontFamily: 'DM Mono, monospace',
-              fontSize: '0.65rem',
+              fontSize: '0.8rem',
               color: C.textMuted,
               lineHeight: 1.7,
               maxWidth: '520px',
@@ -600,7 +600,7 @@ export default function BiddingPage() {
           <div style={{ textAlign: 'right' }}>
             <div style={{
               fontFamily: 'DM Mono, monospace',
-              fontSize: '0.55rem',
+              fontSize: '0.7rem',
               color: C.textDark,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -725,7 +725,7 @@ export default function BiddingPage() {
               <div style={{
                 padding: '12px 18px',
                 borderTop: '1px solid rgba(126, 200, 156, 0.1)',
-                fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                 color: '#7ec89c', letterSpacing: '0.06em',
               }}>
                 Authenticity guaranteed by Gavel
@@ -783,7 +783,7 @@ export default function BiddingPage() {
               </span>
               <span style={{
                 fontFamily: 'DM Mono, monospace',
-                fontSize: '0.6rem',
+                fontSize: '0.75rem',
                 color: C.purple,
                 display: 'flex',
                 alignItems: 'center',
@@ -812,7 +812,7 @@ export default function BiddingPage() {
                     padding: '32px',
                     textAlign: 'center',
                     fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.6rem',
+                    fontSize: '0.75rem',
                     color: C.textDark,
                     letterSpacing: '0.1em',
                   }}>
@@ -824,7 +824,7 @@ export default function BiddingPage() {
             <div style={{
               marginTop: '12px',
               fontFamily: 'DM Mono, monospace',
-              fontSize: '0.55rem',
+              fontSize: '0.7rem',
               color: C.textDark,
               textAlign: 'center',
               letterSpacing: '0.1em',
@@ -862,7 +862,7 @@ export default function BiddingPage() {
           }}>
             <span style={{
               fontFamily: 'DM Mono, monospace',
-              fontSize: '0.6rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.2em',
               color: C.textDark,
               textTransform: 'uppercase',
@@ -963,7 +963,7 @@ export default function BiddingPage() {
               <div style={{ marginBottom: '24px' }}>
                 <div style={{
                   fontFamily: 'DM Mono, monospace',
-                  fontSize: '0.55rem',
+                  fontSize: '0.7rem',
                   letterSpacing: '0.2em',
                   color: C.textDark,
                   textTransform: 'uppercase',
@@ -1027,7 +1027,7 @@ export default function BiddingPage() {
                 <label style={{
                   display: 'block',
                   fontFamily: 'DM Mono, monospace',
-                  fontSize: '0.55rem',
+                  fontSize: '0.7rem',
                   letterSpacing: '0.2em',
                   color: C.textDark,
                   textTransform: 'uppercase',
@@ -1152,7 +1152,7 @@ export default function BiddingPage() {
                   <div style={{
                     marginTop: '6px',
                     fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.55rem',
+                    fontSize: '0.7rem',
                     color: C.textDark,
                     letterSpacing: '0.06em',
                   }}>
@@ -1164,7 +1164,7 @@ export default function BiddingPage() {
                   <div style={{
                     marginTop: '8px',
                     fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.55rem',
+                    fontSize: '0.7rem',
                     color: auction.reserveMet ? '#7ec89c' : '#d4a844',
                     letterSpacing: '0.06em',
                     display: 'flex',
@@ -1203,7 +1203,7 @@ export default function BiddingPage() {
                   </div>
                   <div style={{
                     fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.55rem',
+                    fontSize: '0.7rem',
                     color: C.textDark,
                     lineHeight: 1.6,
                     letterSpacing: '0.04em',
@@ -1281,7 +1281,7 @@ export default function BiddingPage() {
                     </svg>
                     <span style={{
                       fontFamily: 'DM Mono, monospace',
-                      fontSize: '0.6rem',
+                      fontSize: '0.75rem',
                       color: '#7ec89c',
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
@@ -1292,7 +1292,7 @@ export default function BiddingPage() {
 
                   <div style={{
                     fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.55rem',
+                    fontSize: '0.7rem',
                     color: C.textDark,
                     lineHeight: 1.65,
                     letterSpacing: '0.04em',
@@ -1358,7 +1358,7 @@ export default function BiddingPage() {
                     style={{
                       width: '100%',
                       fontFamily: 'DM Mono, monospace',
-                      fontSize: '0.6rem',
+                      fontSize: '0.75rem',
                       letterSpacing: '0.12em',
                       textTransform: 'uppercase',
                       padding: '11px 12px',
@@ -1384,7 +1384,7 @@ export default function BiddingPage() {
                   marginTop: '16px',
                   textAlign: 'center',
                   fontFamily: 'DM Mono, monospace',
-                  fontSize: '0.55rem',
+                  fontSize: '0.7rem',
                   color: C.textDark,
                   letterSpacing: '0.1em',
                   display: 'flex',
@@ -1449,7 +1449,7 @@ export default function BiddingPage() {
           </h3>
           <p style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.6rem', color: '#9589aa',
+            fontSize: '0.75rem', color: '#9589aa',
             lineHeight: 1.7, letterSpacing: '0.04em',
             marginBottom: '24px',
           }}>

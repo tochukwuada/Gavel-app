@@ -99,7 +99,7 @@ function Section({ tag, title, children }) {
     <section style={{ marginBottom: '72px' }}>
       <div style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.55rem',
+        fontSize: '0.7rem',
         letterSpacing: '0.3em',
         color: C.purple,
         textTransform: 'uppercase',
@@ -142,7 +142,7 @@ export default function DocsPage() {
         <button
           onClick={() => navigate('/')}
           style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             letterSpacing: '0.14em', color: C.textDark,
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '6px',
@@ -158,7 +158,7 @@ export default function DocsPage() {
         <div style={{ marginBottom: '72px' }}>
           <div style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.55rem',
+            fontSize: '0.7rem',
             letterSpacing: '0.3em',
             color: C.purple,
             textTransform: 'uppercase',
@@ -179,7 +179,7 @@ export default function DocsPage() {
           </h1>
           <p style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.65rem',
+            fontSize: '0.8rem',
             color: C.textDark,
             letterSpacing: '0.08em',
             lineHeight: 1.7,

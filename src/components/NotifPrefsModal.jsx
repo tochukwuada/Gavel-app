@@ -150,7 +150,7 @@ export default function NotifPrefsModal({ auction, onClose }) {
             onClick={onClose}
             style={{
               flex: 1,
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               letterSpacing: '0.12em', textTransform: 'uppercase',
               padding: '12px', background: 'transparent',
               color: C.textDark,
@@ -164,7 +164,7 @@ export default function NotifPrefsModal({ auction, onClose }) {
             onClick={handleSave}
             style={{
               flex: 2,
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               letterSpacing: '0.12em', textTransform: 'uppercase',
               padding: '12px',
               background: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',

@@ -64,7 +64,7 @@ function CreateModal({ onClose }) {
     <div style={{ marginBottom: '18px' }}>
       <label style={{
         display: 'block', fontFamily: 'DM Mono, monospace',
-        fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase',
+        fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase',
         color: C.textDark, marginBottom: '8px',
       }}>
         {label}
@@ -79,7 +79,7 @@ function CreateModal({ onClose }) {
           width: '100%', background: 'rgba(5, 5, 7, 0.8)',
           border: `1px solid ${focused === key ? C.purple : 'rgba(123, 94, 167, 0.2)'}`,
           borderRadius: '8px', outline: 'none',
-          fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
+          fontFamily: 'DM Mono, monospace', fontSize: '0.9rem',
           color: C.text, padding: '12px 14px', letterSpacing: '0.04em',
           transition: 'border-color 0.2s', boxSizing: 'border-box',
           boxShadow: focused === key ? '0 0 0 3px rgba(123, 94, 167, 0.1)' : 'none',
@@ -106,7 +106,7 @@ function CreateModal({ onClose }) {
       }}>
         <div style={{ marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid rgba(123, 94, 167, 0.1)' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.24em', textTransform: 'uppercase', color: C.purple, marginBottom: '8px',
           }}>
             New Listing
@@ -128,7 +128,7 @@ function CreateModal({ onClose }) {
             { key: 'condition', label: 'Condition', opts: CONDITIONS },
           ].map(({ key, opts, label }) => (
             <div key={key}>
-              <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
                 {label}
               </label>
               <select
@@ -137,7 +137,7 @@ function CreateModal({ onClose }) {
                 style={{
                   width: '100%', background: 'rgba(5, 5, 7, 0.8)',
                   border: '1px solid rgba(123, 94, 167, 0.2)', borderRadius: '8px', outline: 'none',
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.85rem',
                   color: C.text, padding: '11px 14px', letterSpacing: '0.04em',
                   boxSizing: 'border-box', cursor: 'pointer',
                 }}
@@ -150,7 +150,7 @@ function CreateModal({ onClose }) {
 
         <div style={{ marginBottom: '18px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px',
           }}>
             Auction Type
@@ -188,7 +188,7 @@ function CreateModal({ onClose }) {
             <div key={key}>
               <label style={{
                 display: 'block', fontFamily: 'DM Mono, monospace',
-                fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase',
+                fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase',
                 color: C.textDark, marginBottom: '8px',
               }}>
                 {label}
@@ -204,14 +204,14 @@ function CreateModal({ onClose }) {
                     width: '100%', background: 'rgba(5, 5, 7, 0.8)',
                     border: `1px solid ${focused === key ? C.purple : 'rgba(123, 94, 167, 0.2)'}`,
                     borderRadius: '8px', outline: 'none',
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.9rem',
                     color: C.text, padding: '12px 36px 12px 14px',
                     letterSpacing: '0.04em', transition: 'border-color 0.2s', boxSizing: 'border-box',
                   }}
                 />
                 <span style={{
                   position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.65rem',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.8rem',
                   color: suffixColor, pointerEvents: 'none',
                 }}>
                   {suffix}
@@ -224,7 +224,7 @@ function CreateModal({ onClose }) {
         <div style={{ marginTop: '6px', marginBottom: '24px' }}>
           <label style={{
             display: 'block', fontFamily: 'DM Mono, monospace',
-            fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase',
+            fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase',
             color: C.textDark, marginBottom: '8px', marginTop: '18px',
           }}>
             Icon (emoji)
@@ -253,17 +253,17 @@ function CreateModal({ onClose }) {
               <path d="M8.5 12L11 14.5L15.5 10" stroke="#9B7EC8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <div>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: C.purpleLight }}>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.75rem', letterSpacing: '0.16em', textTransform: 'uppercase', color: C.purpleLight }}>
                 Authenticity Verification
               </div>
-              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', color: C.textDark, letterSpacing: '0.04em', marginTop: '2px' }}>
+              <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', color: C.textDark, letterSpacing: '0.04em', marginTop: '2px' }}>
                 Optional — submit docs to earn a Verified badge
               </div>
             </div>
           </div>
 
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
               Verification Type
             </label>
             <select
@@ -282,7 +282,7 @@ function CreateModal({ onClose }) {
           </div>
 
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
               Issuing Authority
             </label>
             <input
@@ -303,7 +303,7 @@ function CreateModal({ onClose }) {
           </div>
 
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
               Proof of Ownership / Certificate of Authenticity
             </label>
             <label style={{
@@ -317,7 +317,7 @@ function CreateModal({ onClose }) {
                 <polyline points="17 8 12 3 7 8" stroke={form.authDocName ? '#7ec89c' : C.textDark} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                 <line x1="12" y1="3" x2="12" y2="15" stroke={form.authDocName ? '#7ec89c' : C.textDark} strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
-              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', color: form.authDocName ? '#7ec89c' : C.textDark, letterSpacing: '0.04em', flex: 1 }}>
+              <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8rem', color: form.authDocName ? '#7ec89c' : C.textDark, letterSpacing: '0.04em', flex: 1 }}>
                 {form.authDocName || 'Upload PDF, JPG, or PNG'}
               </span>
               <input type="file" accept=".pdf,.jpg,.jpeg,.png" style={{ display: 'none' }}
@@ -327,7 +327,7 @@ function CreateModal({ onClose }) {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.55rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
+            <label style={{ display: 'block', fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: C.textDark, marginBottom: '8px' }}>
               Smart Contract Address <span style={{ color: C.textDark, textTransform: 'none', letterSpacing: 0 }}>— optional</span>
             </label>
             <input
@@ -352,7 +352,7 @@ function CreateModal({ onClose }) {
           <button
             onClick={onClose}
             style={{
-              flex: 1, fontFamily: 'DM Mono, monospace', fontSize: '0.65rem',
+              flex: 1, fontFamily: 'DM Mono, monospace', fontSize: '0.8rem',
               letterSpacing: '0.14em', textTransform: 'uppercase', padding: '13px',
               background: 'transparent', color: C.textMuted,
               border: '1px solid rgba(123, 94, 167, 0.18)', borderRadius: '8px', cursor: 'pointer',
@@ -364,7 +364,7 @@ function CreateModal({ onClose }) {
             onClick={handleSubmit} disabled={!valid}
             onMouseEnter={() => setSubmitHover(true)} onMouseLeave={() => setSubmitHover(false)}
             style={{
-              flex: 2, fontFamily: 'DM Mono, monospace', fontSize: '0.65rem',
+              flex: 2, fontFamily: 'DM Mono, monospace', fontSize: '0.8rem',
               letterSpacing: '0.14em', textTransform: 'uppercase', padding: '13px',
               background: !valid
                 ? 'rgba(123, 94, 167, 0.12)'
@@ -465,7 +465,7 @@ function NotifDropdown({ log, onMarkAll, onClear, onClose, onNavigate, isMobile 
             }}>
               <div style={{ fontSize: '1.6rem', marginBottom: '10px', opacity: 0.3 }}>🔔</div>
               <p style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                 color: '#4e4660', letterSpacing: '0.06em',
               }}>
                 No notifications yet
@@ -495,7 +495,7 @@ function NotifDropdown({ log, onMarkAll, onClear, onClose, onNavigate, isMobile 
                 )}
                 <div style={{ flex: 1, minWidth: 0, paddingLeft: n.read ? '16px' : '0' }}>
                   <p style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                     color: n.read ? '#6b5f80' : '#e8e4f0',
                     letterSpacing: '0.03em', lineHeight: 1.5,
                     margin: 0, marginBottom: '3px',
@@ -598,7 +598,7 @@ export default function Navbar() {
         <div style={{
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '8px',
-          fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: C.textMuted,
+          fontFamily: 'DM Mono, monospace', fontSize: '0.75rem', color: C.textMuted,
           letterSpacing: '0.18em', textTransform: 'uppercase', pointerEvents: 'none',
         }}>
           <span style={{
@@ -617,7 +617,7 @@ export default function Navbar() {
               onMouseEnter={() => setAboutHover(true)}
               onMouseLeave={() => setAboutHover(false)}
               style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                 letterSpacing: '0.14em', textTransform: 'uppercase',
                 padding: '8px 14px', borderRadius: '5px', cursor: 'pointer',
                 background: 'transparent',
@@ -637,7 +637,7 @@ export default function Navbar() {
               onMouseEnter={() => setWatchHover(true)}
               onMouseLeave={() => setWatchHover(false)}
               style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                 letterSpacing: '0.14em', textTransform: 'uppercase',
                 padding: '8px 14px', borderRadius: '5px', cursor: 'pointer',
                 background: 'transparent',
@@ -678,7 +678,7 @@ export default function Navbar() {
               onMouseEnter={() => setCreateHover(true)}
               onMouseLeave={() => setCreateHover(false)}
               style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                 letterSpacing: '0.14em', textTransform: 'uppercase',
                 padding: '8px 16px', borderRadius: '5px', cursor: 'pointer',
                 background: createHover ? 'rgba(123, 94, 167, 0.15)' : 'transparent',
@@ -688,7 +688,7 @@ export default function Navbar() {
                 display: 'flex', alignItems: 'center', gap: '5px',
               }}
             >
-              <span style={{ fontSize: '0.75rem', lineHeight: 1 }}>+</span>
+              <span style={{ fontSize: '0.9rem', lineHeight: 1 }}>+</span>
               Create
             </button>
           )}

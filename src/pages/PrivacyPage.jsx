@@ -112,7 +112,7 @@ export default function PrivacyPage() {
         <button
           onClick={() => navigate('/')}
           style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             letterSpacing: '0.14em', color: C.textDark,
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '6px',
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
         {/* Hero */}
         <div style={{ marginBottom: '60px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.3em', color: C.purple,
             textTransform: 'uppercase', marginBottom: '14px',
           }}>
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
           borderRadius: '10px',
           marginBottom: '48px',
           fontFamily: 'DM Mono, monospace',
-          fontSize: '0.6rem',
+          fontSize: '0.75rem',
           color: C.textMuted,
           lineHeight: 1.7,
           letterSpacing: '0.04em',
@@ -181,7 +181,7 @@ export default function PrivacyPage() {
               }}>
                 <div style={{
                   fontFamily: 'DM Mono, monospace',
-                  fontSize: '0.6rem',
+                  fontSize: '0.75rem',
                   color: C.purpleLight,
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
@@ -195,27 +195,27 @@ export default function PrivacyPage() {
                   gap: '8px 14px',
                 }}>
                   <span style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                     color: C.textDark, letterSpacing: '0.12em', textTransform: 'uppercase',
                     paddingTop: '1px',
                   }}>
                     Why
                   </span>
                   <span style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                     color: C.textMuted, lineHeight: 1.65, letterSpacing: '0.04em',
                   }}>
                     {item.why}
                   </span>
                   <span style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                     color: C.textDark, letterSpacing: '0.12em', textTransform: 'uppercase',
                     paddingTop: '1px',
                   }}>
                     How
                   </span>
                   <span style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                     color: C.textMuted, lineHeight: 1.65, letterSpacing: '0.04em',
                   }}>
                     {item.how}
@@ -286,7 +286,7 @@ export default function PrivacyPage() {
                   {r.label}
                 </div>
                 <p style={{
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                   color: C.textMuted, lineHeight: 1.7, letterSpacing: '0.04em',
                 }}>
                   {r.body}
@@ -295,7 +295,7 @@ export default function PrivacyPage() {
             ))}
           </div>
           <p style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             color: C.textDark, lineHeight: 1.7, letterSpacing: '0.04em',
             marginTop: '16px',
           }}>

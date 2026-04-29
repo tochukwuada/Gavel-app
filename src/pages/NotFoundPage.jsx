@@ -94,7 +94,7 @@ export default function NotFoundPage() {
 
       <div style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.6rem',
+        fontSize: '0.75rem',
         letterSpacing: '0.28em',
         textTransform: 'uppercase',
         color: C.purple,
@@ -137,7 +137,7 @@ export default function NotFoundPage() {
         onMouseLeave={() => setBtnHover(false)}
         style={{
           fontFamily: 'DM Mono, monospace',
-          fontSize: '0.7rem',
+          fontSize: '0.85rem',
           letterSpacing: '0.16em',
           textTransform: 'uppercase',
           padding: '14px 40px',

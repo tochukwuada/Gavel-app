@@ -47,7 +47,7 @@ export default function AdminPage() {
           <button
             onClick={() => navigate('/')}
             style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               letterSpacing: '0.14em', color: C.textDark, background: 'none',
               border: 'none', cursor: 'pointer', padding: 0, marginBottom: '28px',
               display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s',
@@ -75,7 +75,7 @@ export default function AdminPage() {
             </div>
             <div>
               <div style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                 letterSpacing: '0.24em', textTransform: 'uppercase', color: C.purple,
                 marginBottom: '4px',
               }}>
@@ -128,7 +128,7 @@ export default function AdminPage() {
         {/* auctions table */}
         <div>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.24em', textTransform: 'uppercase',
             color: C.textDark, marginBottom: '16px', paddingBottom: '14px',
             borderBottom: `1px solid ${C.border}`,
@@ -203,7 +203,7 @@ export default function AdminPage() {
 
                   {/* category */}
                   <span style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                     color: C.textDark, letterSpacing: '0.08em',
                   }}>
                     {a.category}
@@ -219,7 +219,7 @@ export default function AdminPage() {
 
                   {/* time */}
                   <span style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                     color: urgent ? '#e07c7c' : warning ? '#d4a844' : C.textDark,
                     letterSpacing: '0.05em',
                   }}>
@@ -245,7 +245,7 @@ export default function AdminPage() {
                       animation: isActive && !urgent ? 'pulse 2s infinite' : 'none',
                     }} />
                     <span style={{
-                      fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                      fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                       color: isActive ? (urgent ? '#e07c7c' : '#7ec89c') : C.textDark,
                       letterSpacing: '0.1em', textTransform: 'uppercase',
                     }}>

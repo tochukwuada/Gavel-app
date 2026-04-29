@@ -59,7 +59,7 @@ export default function Footer() {
                   style={{
                     background: 'none', border: 'none', cursor: 'pointer', padding: 0,
                     fontFamily: 'DM Mono, monospace',
-                    fontSize: '0.6rem',
+                    fontSize: '0.75rem',
                     letterSpacing: '0.14em',
                     textTransform: 'uppercase',
                     color: hovered === l.path ? C.purpleLight : C.textDark,
@@ -80,7 +80,7 @@ export default function Footer() {
               onMouseLeave={() => setSupportHover(false)}
               style={{
                 fontFamily: 'DM Mono, monospace',
-                fontSize: '0.6rem',
+                fontSize: '0.75rem',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 textDecoration: 'none',

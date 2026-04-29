@@ -23,6 +23,7 @@ select {
 }
 
 html {
+  font-size: 16px;
   scroll-behavior: smooth;
 }
 
@@ -149,7 +150,7 @@ input[type="number"] { -moz-appearance: textfield; }
 .wallet-adapter-modal-list-more {
   color: #7B5EA7 !important;
   font-family: 'DM Mono', monospace !important;
-  font-size: 0.65rem !important;
+  font-size: 0.8rem !important;
 }
 
 .wallet-adapter-modal-middle-button {
@@ -159,7 +160,7 @@ input[type="number"] { -moz-appearance: textfield; }
   font-family: 'DM Mono', monospace !important;
   letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
-  font-size: 0.65rem !important;
+  font-size: 0.8rem !important;
   border: none !important;
 }
 

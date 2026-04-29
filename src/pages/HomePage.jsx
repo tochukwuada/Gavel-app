@@ -147,7 +147,7 @@ export default function HomePage() {
         {/* Live tag */}
         <div style={{
           fontFamily: 'DM Mono, monospace',
-          fontSize: '0.6rem',
+          fontSize: '0.75rem',
           letterSpacing: '0.26em',
           color: C.purple,
           textTransform: 'uppercase',
@@ -329,7 +329,7 @@ export default function HomePage() {
             </div>
             <div style={{
               fontFamily: 'DM Mono, monospace',
-              fontSize: '0.55rem',
+              fontSize: '0.7rem',
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: s.highlight ? C.purple : C.textDark,
@@ -437,7 +437,7 @@ export default function HomePage() {
               </h3>
               <p style={{
                 fontFamily: 'DM Mono, monospace',
-                fontSize: '0.6rem',
+                fontSize: '0.75rem',
                 color: C.textDark,
                 lineHeight: 1.75,
                 letterSpacing: '0.04em',

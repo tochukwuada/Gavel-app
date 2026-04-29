@@ -32,7 +32,7 @@ export default function WatchlistPage() {
           onMouseEnter={() => setBackHover(true)}
           onMouseLeave={() => setBackHover(false)}
           style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             letterSpacing: '0.14em', color: backHover ? C.textMuted : C.textDark,
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '6px',
@@ -81,7 +81,7 @@ export default function WatchlistPage() {
               Nothing saved yet.
             </p>
             <p style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               color: C.textDark, letterSpacing: '0.1em', marginBottom: '32px',
             }}>
               Browse auctions and click the bookmark icon to save them here.
@@ -89,7 +89,7 @@ export default function WatchlistPage() {
             <button
               onClick={() => navigate('/')}
               style={{
-                fontFamily: 'DM Mono, monospace', fontSize: '0.65rem',
+                fontFamily: 'DM Mono, monospace', fontSize: '0.8rem',
                 letterSpacing: '0.14em', textTransform: 'uppercase',
                 padding: '12px 32px',
                 background: 'linear-gradient(135deg, #7B5EA7, #5a3f8a)',

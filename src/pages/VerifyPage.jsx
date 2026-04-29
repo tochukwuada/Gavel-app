@@ -100,7 +100,7 @@ export default function VerifyPage() {
         <button
           onClick={() => navigate('/')}
           style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             letterSpacing: '0.14em', color: C.textDark,
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '6px',
@@ -115,7 +115,7 @@ export default function VerifyPage() {
         {/* Hero */}
         <div style={{ marginBottom: '48px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.3em', color: C.purple,
             textTransform: 'uppercase', marginBottom: '14px',
           }}>
@@ -175,7 +175,7 @@ export default function VerifyPage() {
                 : 'rgba(123, 94, 167, 0.12)',
               color: query.trim() ? '#fff' : C.textDark,
               border: 'none', borderRadius: '9px',
-              fontFamily: 'DM Mono, monospace', fontSize: '0.65rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.8rem',
               letterSpacing: '0.14em', textTransform: 'uppercase',
               cursor: query.trim() ? 'pointer' : 'not-allowed',
               transition: 'all 0.25s',
@@ -267,7 +267,7 @@ export default function VerifyPage() {
                 <ShieldIcon verified={verified} size={36} />
                 <div>
                   <div style={{
-                    fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+                    fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
                     color: C.textDark, letterSpacing: '0.2em',
                     textTransform: 'uppercase', marginBottom: '4px',
                   }}>

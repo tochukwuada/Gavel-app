@@ -53,7 +53,7 @@ function Toast({ toast, onDismiss }) {
         width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0, marginTop: '1px',
         background: s.bg, border: `1px solid ${s.border}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: '0.6rem', color: s.accent, fontFamily: 'DM Mono, monospace',
+        fontSize: '0.75rem', color: s.accent, fontFamily: 'DM Mono, monospace',
       }}>
         {toast.type === 'success' ? '✓' : toast.type === 'warning' ? '⚠' : toast.type === 'outbid' ? '↑' : '◉'}
       </div>

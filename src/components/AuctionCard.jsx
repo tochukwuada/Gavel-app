@@ -282,7 +282,7 @@ function VerifyModal({ auction, onClose }) {
               {auction.name}
             </div>
             <div style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
               color: C.textDark, letterSpacing: '0.12em', textTransform: 'uppercase',
             }}>
               Auction #{auction.id}
@@ -499,7 +499,7 @@ export default function AuctionCard({ auction }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <span style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               color: timerColor, letterSpacing: '0.05em',
               fontWeight: urgent || warning ? 500 : 400,
             }}>
@@ -554,7 +554,7 @@ export default function AuctionCard({ auction }) {
         )}
 
         <p style={{
-          fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+          fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
           color: C.textDark, marginBottom: '24px', letterSpacing: '0.05em',
         }}>
           Est. {auction.estimate}
@@ -611,7 +611,7 @@ export default function AuctionCard({ auction }) {
 
         {/* footer */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.6rem', color: C.textMuted }}>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.75rem', color: C.textMuted }}>
             {auction.bidCount} sealed bid{auction.bidCount !== 1 ? 's' : ''}
           </span>
           <span style={{

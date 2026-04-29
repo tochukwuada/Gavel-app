@@ -30,7 +30,7 @@ export default function AboutPage() {
         <button
           onClick={() => navigate('/')}
           style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
             letterSpacing: '0.14em', color: C.textDark,
             background: 'none', border: 'none', cursor: 'pointer', padding: 0,
             marginBottom: '48px', display: 'flex', alignItems: 'center', gap: '6px',
@@ -45,7 +45,7 @@ export default function AboutPage() {
         {/* Hero */}
         <div style={{ marginBottom: '64px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.3em', color: C.purple,
             textTransform: 'uppercase', marginBottom: '14px',
           }}>
@@ -61,7 +61,7 @@ export default function AboutPage() {
             <span style={{ color: C.textMuted, fontStyle: 'italic', fontWeight: 300 }}>private auctions.</span>
           </h1>
           <p style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.65rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.8rem',
             color: C.textMuted, lineHeight: 1.8, letterSpacing: '0.04em',
             maxWidth: '600px',
           }}>
@@ -99,7 +99,7 @@ export default function AboutPage() {
         {/* Technology */}
         <div style={{ marginBottom: '56px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.24em', textTransform: 'uppercase',
             color: C.textDark, marginBottom: '20px', paddingBottom: '14px',
             borderBottom: `1px solid rgba(123, 94, 167, 0.08)`,
@@ -114,7 +114,7 @@ export default function AboutPage() {
                 borderRadius: '10px', display: 'flex', gap: '16px',
               }}>
                 <div style={{
-                  fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+                  fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
                   color: C.purpleLight, letterSpacing: '0.1em',
                   textTransform: 'uppercase', flexShrink: 0,
                   minWidth: isMobile ? '0' : '160px', paddingTop: '1px',
@@ -135,7 +135,7 @@ export default function AboutPage() {
         {/* About Gavel */}
         <div style={{ marginBottom: '56px' }}>
           <div style={{
-            fontFamily: 'DM Mono, monospace', fontSize: '0.55rem',
+            fontFamily: 'DM Mono, monospace', fontSize: '0.7rem',
             letterSpacing: '0.24em', textTransform: 'uppercase',
             color: C.textDark, marginBottom: '20px', paddingBottom: '14px',
             borderBottom: `1px solid rgba(123, 94, 167, 0.08)`,
@@ -180,7 +180,7 @@ export default function AboutPage() {
               Source & Support
             </div>
             <p style={{
-              fontFamily: 'DM Mono, monospace', fontSize: '0.6rem',
+              fontFamily: 'DM Mono, monospace', fontSize: '0.75rem',
               color: C.textDark, letterSpacing: '0.06em',
             }}>
               For support, open an issue on GitHub.

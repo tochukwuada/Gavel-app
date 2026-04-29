@@ -214,7 +214,7 @@ function StepCard({ step, index }) {
       {/* description */}
       <p style={{
         fontFamily: 'DM Mono, monospace',
-        fontSize: '0.65rem',
+        fontSize: '0.8rem',
         color: C.textMuted,
         lineHeight: 1.8,
         letterSpacing: '0.04em',
@@ -267,7 +267,7 @@ export default function HowItWorksPage() {
           onMouseLeave={() => setBackHover(false)}
           style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.6rem',
+            fontSize: '0.75rem',
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
             color: backHover ? C.textMuted : C.textDark,
@@ -308,7 +308,7 @@ export default function HowItWorksPage() {
 
         <div style={{
           fontFamily: 'DM Mono, monospace',
-          fontSize: '0.6rem',
+          fontSize: '0.75rem',
           letterSpacing: '0.28em',
           color: C.purple,
           textTransform: 'uppercase',
@@ -374,7 +374,7 @@ export default function HowItWorksPage() {
           gap: '8px',
           marginBottom: '40px',
           fontFamily: 'DM Mono, monospace',
-          fontSize: '0.55rem',
+          fontSize: '0.7rem',
           color: C.textDark,
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
@@ -509,7 +509,7 @@ export default function HowItWorksPage() {
           </h2>
           <p style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.65rem',
+            fontSize: '0.8rem',
             color: C.textMuted,
             lineHeight: 1.85,
             letterSpacing: '0.04em',
@@ -519,7 +519,7 @@ export default function HowItWorksPage() {
           </p>
           <p style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.65rem',
+            fontSize: '0.8rem',
             color: C.textMuted,
             lineHeight: 1.85,
             letterSpacing: '0.04em',
@@ -537,7 +537,7 @@ export default function HowItWorksPage() {
         }}>
           <div style={{
             fontFamily: 'DM Mono, monospace',
-            fontSize: '0.55rem',
+            fontSize: '0.7rem',
             letterSpacing: '0.24em',
             color: C.textDark,
             textTransform: 'uppercase',
